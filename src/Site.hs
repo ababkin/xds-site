@@ -29,7 +29,7 @@ import qualified Text.XmlHtml as X
 import Snap.Snaplet.PostgresqlSimple (pgsInit, query_, execute)
 import Database.PostgreSQL.Simple.FromRow
 import Snap.Snaplet.Sass
-
+import Snap.Snaplet.Auth.Backends.PostgresqlSimple (initPostgresAuth)
 
 ------------------------------------------------------------------------------
 import           Application
@@ -47,9 +47,24 @@ instance FromRow Source where
                 <*> field
                 <*> field
 
+handleRoot :: Handler App App ()
+handleRoot = method GET handleListSources
 
-sourcesHandler :: Handler App App ()
-sourcesHandler = do
+handleSources :: Handler App App ()
+handleSources = method GET handleListSources <|> method POST handleFormSubmit
+  where
+    handleFormSubmit = do 
+      title       <- getPostParam "title"
+      description <- getPostParam "description"
+      url         <- getPostParam "url"
+      newProject <- execute "INSERT INTO sources VALUES (?, ?, ?)" (title, description, url)
+      redirect "/sources"
+
+handleNewSource :: Handler App App ()
+handleNewSource = method GET $ render "sources/new"
+
+handleListSources :: Handler App App ()
+handleListSources = do
   sources <- query_ "SELECT * FROM sources"
   withSplices (sourcesSplices sources) $ render "sources/index"
   
@@ -65,23 +80,21 @@ sourcesHandler = do
 
 
 
-handleNewSource :: Handler App App ()
-handleNewSource = method GET handleForm <|> method POST handleFormSubmit
+handleNewUser :: Handler App (AuthManager App) ()
+handleNewUser = method GET $ render "users/index"
+
+handleUsers :: Handler App (AuthManager App) ()
+handleUsers = method POST handleFormSubmit
   where
-    handleForm = render "sources/new"
-    handleFormSubmit = do 
-      title       <- getPostParam "title"
-      description <- getPostParam "description"
-      url         <- getPostParam "url"
-      newProject <- execute "INSERT INTO sources VALUES (?, ?, ?)" (title, description, url)
-      redirect "/sources"
+    handleFormSubmit = registerUser "login" "password" >> redirect "/"
+
 
 
 
 ------------------------------------------------------------------------------
 -- | Render login form
 handleLogin :: Maybe T.Text -> Handler App (AuthManager App) ()
-handleLogin authError = heistLocal (I.bindSplices errs) $ render "login"
+handleLogin authError = heistLocal (I.bindSplices errs) $ render "auth/login"
   where
     errs = maybe mempty splice authError
     splice err = "loginError" ## I.textSplice err
@@ -103,25 +116,23 @@ handleLogout :: Handler App (AuthManager App) ()
 handleLogout = logout >> redirect "/"
 
 
-------------------------------------------------------------------------------
--- | Handle new user form submit
-handleNewUser :: Handler App (AuthManager App) ()
-handleNewUser = method GET handleForm <|> method POST handleFormSubmit
-  where
-    handleForm = render "new_user"
-    handleFormSubmit = registerUser "login" "password" >> redirect "/"
+
 
 
 ------------------------------------------------------------------------------
 -- | The application's routes.
 routes :: [(ByteString, Handler App App ())]
-routes =  [ ("/sources",    sourcesHandler)
-          , ("/new_source", handleNewSource)
-          , ("/login",      with auth handleLoginSubmit)
-          , ("/logout",     with auth handleLogout)
-          , ("/new_user",   with auth handleNewUser)
-          , ("/sass",       with sass sassServe)
-          , ("",            serveDirectory "static")
+routes =  [ ("",              handleRoot)
+          , ("/sources",      handleSources)
+          , ("/sources/new",  handleNewSource)
+          
+          , ("/users",        with auth handleUsers)
+          , ("/users/new",    with auth handleNewUser)
+
+          , ("/login",        with auth handleLoginSubmit)
+          , ("/logout",       with auth handleLogout)
+          , ("/sass",         with sass sassServe)
+          , ("/static",       serveDirectory "static")
           ]
 
 
@@ -130,16 +141,13 @@ routes =  [ ("/sources",    sourcesHandler)
 app :: SnapletInit App App
 app = makeSnaplet "app" "An snaplet example application." Nothing $ do
     h <- nestSnaplet "" heist $ heistInit "templates"
+
     s <- nestSnaplet "sess" sess $
            initCookieSessionManager "site_key.txt" "sess" (Just 3600)
 
     db <- nestSnaplet "db" db pgsInit
 
-    -- NOTE: We're using initJsonFileAuthManager here because it's easy and
-    -- doesn't require any kind of database server to run.  In practice,
-    -- you'll probably want to change this to a more robust auth backend.
-    a <- nestSnaplet "auth" auth $
-           initJsonFileAuthManager defAuthSettings sess "users.json"
+    a <- nestSnaplet "auth" auth $ initPostgresAuth sess db
 
     sass <- nestSnaplet "sass" sass initSass
   

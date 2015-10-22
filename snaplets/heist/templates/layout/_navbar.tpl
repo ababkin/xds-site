@@ -11,7 +11,15 @@
       <span class="dataset">dataset</span>
     </a>
   </div>
+
   <ul class="nav navbar-top-links navbar-right">
+  <ifLoggedOut>
+    <a class="btn btn-default" rel="nofollow" href="/login">
+      Login
+    </a>
+  </ifLoggedOut>
+
+  <ifLoggedIn>
     <li class="dropdown">
       <a class="dropdown-toggle" data-toggle="dropdown" href="#">
         <i class="fa fa-user fa-fw"></i>
@@ -19,21 +27,14 @@
       </a>
       <ul class="dropdown-menu dropdown-user">
         <li>
-          <ifLoggedIn>
-            <a rel="nofollow" data-method="delete" href="/logout">
-              <i class="fa fa-sign-out fa-fw"></i>
-              Logout
-            </a>
-          </ifLoggedIn>
-          <ifLoggedOut>
-            <a rel="nofollow" href="/login">
-              <i class="fa fa-sign-out fa-fw"></i>
-              Login
-            </a>
-          </ifLoggedOut>
+          <a rel="nofollow" data-method="delete" href="/logout">
+            <i class="fa fa-sign-out fa-fw"></i>
+            Logout
+          </a>
         </li>
       </ul>
     </li>
+  </ifLoggedIn>
   </ul>
 </nav>
 

@@ -1,4 +1,4 @@
-<apply template="base">
+<apply template="/layout/base">
 
   <div class="row">
     <div class="sources">
