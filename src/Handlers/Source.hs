@@ -9,7 +9,7 @@ import           Snap.Snaplet
 {- import           Snap.Snaplet.Auth -}
 import           Snap.Snaplet.Heist
 import           Heist
-import qualified Heist.Interpreted as I
+import Heist.Interpreted (mapSplices, runChildrenWithText)
 import Snap.Snaplet.PostgresqlSimple (query_, execute)
 
 
@@ -36,11 +36,13 @@ handleListSources = do
   withSplices (sourcesSplices sources) $ render "sources/index"
   
   where
-    sourcesSplices sources = do
-      "sources" ## I.mapSplices gen sources
+    sourcesSplices sources =
+      "sources" ## mapSplices sourceSplice sources
+
       where
-        gen Source{title, description, url} =
-          I.runChildrenWith $ do
-            "title"       ## I.textSplice title
-            "description" ## I.textSplice description
-            "url"         ## I.textSplice url
+        sourceSplice Source{title, description, url} = 
+          runChildrenWithText $ do
+            "title"       ## title
+            "description" ## description
+            "url"         ## url
+

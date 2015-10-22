@@ -1,31 +1,23 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE NamedFieldPuns #-}
 
-------------------------------------------------------------------------------
--- | This module is where all the routes and handlers are defined for your
--- site. The 'app' function is the initializer that combines everything
--- together and is exported by this module.
 module Site
   ( app
   ) where
 
 ------------------------------------------------------------------------------
-import           Control.Applicative
-import Control.Monad.IO.Class (liftIO)
-import           Data.ByteString (ByteString)
-import           Data.Monoid
-import Data.Text (Text)
-import qualified Data.Text as T
-import           Snap.Core
-import           Snap.Snaplet (wrapSite, Handler, with, makeSnaplet, 
+{- import Control.Applicative -}
+import Data.ByteString (ByteString)
+
+import Snap.Core (method, Method(GET))
+import Snap.Util.FileServe (serveDirectory)
+
+import Snap.Snaplet (wrapSite, Handler, with, makeSnaplet, 
   nestSnaplet, addRoutes, SnapletInit)
-import           Snap.Snaplet.Auth (loginByRememberToken, addAuthSplices)
-import           Snap.Snaplet.Heist
-import           Snap.Snaplet.Session.Backends.CookieSession
-import           Snap.Util.FileServe
-import           Heist
-import qualified Heist.Interpreted as I
-import Snap.Snaplet.Sass
+import Snap.Snaplet.Auth (loginByRememberToken, addAuthSplices)
+import Snap.Snaplet.Heist (heistInit)
+import Snap.Snaplet.Session.Backends.CookieSession
+import Snap.Snaplet.Sass (sassServe, initSass)
 import Snap.Snaplet.Auth.Backends.PostgresqlSimple (initPostgresAuth)
 import Snap.Snaplet.PostgresqlSimple (pgsInit)
 
@@ -74,6 +66,7 @@ app = makeSnaplet "app" "An snaplet example application." Nothing $ do
     addRoutes routes
     addAuthSplices h auth
     wrapSite (\h -> with auth loginByRememberToken >> h)
+    {- wrapSite (<|> the404) -}
     
     return $ App h se a d sa
 
