@@ -1,5 +1,3 @@
-<h1>Register a new user</h1>
-
-<bind tag="postAction">/users</bind>
-<bind tag="submitText">Register</bind>
+<bind tag="method">post</bind>
+<bind tag="submitText">Sign Up</bind>
 <apply template="form"/>

@@ -10,16 +10,16 @@ import           Snap.Snaplet.Auth (AuthManager,
   loginUser, logout)
 import           Snap.Snaplet.Heist
 import           Heist
-import qualified Heist.Interpreted as I
+import Heist.Interpreted (bindSplices, textSplice)
 
 import Application (App)
 
 
 handleLogin :: Maybe Text -> Handler App (AuthManager App) ()
-handleLogin authError = heistLocal (I.bindSplices errs) $ render "auth/login"
+handleLogin authError = heistLocal (bindSplices errs) $ render "auth/login"
   where
     errs = maybe mempty splice authError
-    splice err = "loginError" ## I.textSplice err
+    splice err = "loginError" ## textSplice err
 
 
 handleLoginSubmit :: Handler App (AuthManager App) ()

@@ -6,10 +6,10 @@ module Site
   ) where
 
 ------------------------------------------------------------------------------
-{- import Control.Applicative -}
+import Control.Applicative ((<|>))
 import Data.ByteString (ByteString)
 
-import Snap.Core (method, Method(GET))
+import Snap.Core (method, Method(GET), ifTop)
 import Snap.Util.FileServe (serveDirectory)
 
 import Snap.Snaplet (wrapSite, Handler, with, makeSnaplet, 
@@ -31,17 +31,12 @@ import Handlers.User (handleNewUser, handleUsers)
 import Application (App(App))
 
 
-handleRoot :: Handler App App ()
-handleRoot = method GET handleListSources
-
-
 routes :: [(ByteString, Handler App App ())]
-routes =  [ ("",              handleRoot)
-          , ("/sources",      handleSources)
+routes =  [ ("/sources",      handleSources)
           , ("/sources/new",  handleNewSource)
           
           , ("/users",        with auth handleUsers)
-          , ("/users/new",    with auth handleNewUser)
+          , ("/signup",       with auth handleNewUser)
 
           , ("/login",        with auth handleLoginSubmit)
           , ("/logout",       with auth handleLogout)
@@ -55,18 +50,19 @@ app :: SnapletInit App App
 app = makeSnaplet "app" "An snaplet example application." Nothing $ do
     h     <- nestSnaplet "" heist $ heistInit "templates"
 
-    se     <- nestSnaplet "sess" sess $ initCookieSessionManager "site_key.txt" "sess" (Just 3600)
+    se    <- nestSnaplet "sess" sess $ initCookieSessionManager "site_key.txt" "sess" (Just 3600)
 
-    d    <- nestSnaplet "db" db pgsInit
+    d     <- nestSnaplet "db" db pgsInit
 
     a     <- nestSnaplet "auth" auth $ initPostgresAuth sess d
 
-    sa  <- nestSnaplet "sass" sass initSass
+    sa    <- nestSnaplet "sass" sass initSass
   
     addRoutes routes
     addAuthSplices h auth
     wrapSite (\h -> with auth loginByRememberToken >> h)
     {- wrapSite (<|> the404) -}
+    wrapSite (\site -> ifTop handleListSources <|> site)
     
     return $ App h se a d sa
 

@@ -1,9 +1,35 @@
-<h1>Snap Example App Login</h1>
+<div class="col-md-6">
+  <div class="alert alert-danger" role="alert"><loginError/></div>
+  <h2>Log in</h2>
+  <form role="form" class="new_user" id="new_user" action="/login" accept-charset="UTF-8" method="post">
+    <div class="field">
+      <div class="form-group">
+        <label class="control-label required" for="user_login">Email</label>
+        <input autofocus="autofocus" class="form-control" type="login" value="" name="login" id="user_login" autocomplete="off">
+      </div>
+    </div>
+    <div class="field">
+      <div class="form-group">
+        <label class="control-label required" for="user_password">Password</label>
+        <input autocomplete="off" class="form-control" type="password" name="password" id="user_password">
+      </div>
+    </div>
+    <div class="field">
+      <div class="checkbox">
+        <label for="user_remember_me">
+          <input name="remember_me" type="hidden" value="0">
+          <input type="checkbox" value="1" name="remember_me" id="user_remember_me"> 
+          Remember me
+        </label>
+      </div>
+    </div>
 
-<p><loginError/></p>
-
-<bind tag="postAction">/login</bind>
-<bind tag="submitText">Login</bind>
-<apply template="/users/form"/>
-
-<p>Don't have a login yet? <a href="/users/new">Create a new user</a></p>
+    <div class="actions">
+      <input type="submit" name="commit" value="Log in" class="btn btn-default">
+    </div>
+  </form>
+  <a href="/signup">Sign up</a>
+  <br>
+  <a href="/users">Forgot your password?</a>
+  <br>
+</div>
