@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 ------------------------------------------------------------------------------
 -- | This module defines our application's state type and an alias for its
@@ -7,16 +8,23 @@ module Application where
 
 ------------------------------------------------------------------------------
 import Control.Lens
+import Control.Monad.Reader (local)
+import Control.Monad.State.Class (get)
+import Snap
 import Snap.Snaplet
 import Snap.Snaplet.Heist
 import Snap.Snaplet.Auth
 import Snap.Snaplet.Session
+import Snap.Snaplet.PostgresqlSimple
+import Snap.Snaplet.Sass
 
 ------------------------------------------------------------------------------
 data App = App
-    { _heist :: Snaplet (Heist App)
-    , _sess :: Snaplet SessionManager
-    , _auth :: Snaplet (AuthManager App)
+    { _heist  :: Snaplet (Heist App)
+    , _sess   :: Snaplet SessionManager
+    , _auth   :: Snaplet (AuthManager App)
+    , _db     :: Snaplet Postgres
+    , _sass   :: Snaplet Sass
     }
 
 makeLenses ''App
@@ -24,6 +32,9 @@ makeLenses ''App
 instance HasHeist App where
     heistLens = subSnaplet heist
 
+instance HasPostgres (Handler b App) where
+  getPostgresState = with db get
+  setLocalPostgresState s = local (set (db . snapletValue) s)
 
 ------------------------------------------------------------------------------
 type AppHandler = Handler App App

@@ -1,0 +1,27 @@
+#wrapper #page-wrapper {
+  margin-left: 0;
+  padding: 10px; }
+
+.navbar-default.navbar {
+  background-color: #ddd; }
+.navbar-default a.navbar-brand span.join-symbol {
+  font-size: 1.6em;
+  color: #f89; }
+.navbar-default a.navbar-brand span.dataset {
+  margin-left: -4px;
+  font-style: italic;
+  font-size: 1.4em;
+  color: #555; }
+.navbar-default .instructions {
+  margin-top: 10px;
+  margin-right: 20px; }
+
+.search-bar {
+  margin: 0 20px 20px 20px; }
+
+.sources .source {
+  margin: 0 20px 20px; }
+  .sources .source .title a {
+    font-size: 1.5em; }
+
+/*# sourceMappingURL=overrides.css.map */
