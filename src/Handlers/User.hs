@@ -5,7 +5,7 @@ module Handlers.User where
 
 import           Snap.Core
 import           Snap.Snaplet
-import           Snap.Snaplet.Auth
+import           Snap.Snaplet.Auth (registerUser, AuthManager)
 import           Snap.Snaplet.Heist
 
 import Application (App)

@@ -17,8 +17,9 @@ import           Data.Monoid
 import Data.Text (Text)
 import qualified Data.Text as T
 import           Snap.Core
-import           Snap.Snaplet
-import           Snap.Snaplet.Auth
+import           Snap.Snaplet (wrapSite, Handler, with, makeSnaplet, 
+  nestSnaplet, addRoutes, SnapletInit)
+import           Snap.Snaplet.Auth (loginByRememberToken, addAuthSplices)
 import           Snap.Snaplet.Heist
 import           Snap.Snaplet.Session.Backends.CookieSession
 import           Snap.Util.FileServe
@@ -52,6 +53,7 @@ routes =  [ ("",              handleRoot)
 
           , ("/login",        with auth handleLoginSubmit)
           , ("/logout",       with auth handleLogout)
+
           , ("/sass",         with sass sassServe)
           , ("/static",       serveDirectory "static")
           ]
@@ -61,18 +63,19 @@ app :: SnapletInit App App
 app = makeSnaplet "app" "An snaplet example application." Nothing $ do
     h     <- nestSnaplet "" heist $ heistInit "templates"
 
-    s     <- nestSnaplet "sess" sess $ initCookieSessionManager "site_key.txt" "sess" (Just 3600)
+    se     <- nestSnaplet "sess" sess $ initCookieSessionManager "site_key.txt" "sess" (Just 3600)
 
-    a     <- nestSnaplet "auth" auth $ initPostgresAuth sess db
+    d    <- nestSnaplet "db" db pgsInit
 
-    db    <- nestSnaplet "db" db pgsInit
+    a     <- nestSnaplet "auth" auth $ initPostgresAuth sess d
 
-    sass  <- nestSnaplet "sass" sass initSass
+    sa  <- nestSnaplet "sass" sass initSass
   
     addRoutes routes
     addAuthSplices h auth
-
-    return $ App h s a db sass
+    wrapSite (\h -> with auth loginByRememberToken >> h)
+    
+    return $ App h se a d sa
 
 
   
