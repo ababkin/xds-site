@@ -5,7 +5,6 @@
 module Handlers.Source where
 
 import Control.Applicative ((<$>), (<*>), (<|>), pure)
-import Control.Arrow((>>>))
 import Control.Monad.IO.Class (liftIO, MonadIO)
 import Data.Maybe (isJust)
 import Data.Monoid (Monoid, mempty)
@@ -16,7 +15,7 @@ import Data.UUID (UUID)
 import Snap.Core (method, redirect, Method(GET, POST))
 import Snap.Snaplet
 {- import           Snap.Snaplet.Auth -}
-import Snap.Snaplet.Heist
+import Snap.Snaplet.Heist (heistLocal, render, withSplices)
 import Heist ((##))
 import Heist.Interpreted (mapSplices, runChildrenWithText)
 import Snap.Snaplet.PostgresqlSimple (query_, execute, query)
@@ -34,7 +33,7 @@ import Control.Exception (catch)
 import Control.Monad.Catch (MonadThrow, MonadCatch, Exception)
 
 import Application (App)
-import Types (Source(Source, title, description, url))
+import Types (Source(..))
 
 
 sourceForm 
@@ -56,18 +55,6 @@ sourceForm uuid timestamp = do
       check "URL must have correct format" isFormattedLikeURL .
       check "URL must not be empty" isNotEmpty
 
-    isFormattedLikeURL :: Text -> Bool
-    isFormattedLikeURL = isJust . parseUrl . T.unpack
-    
-    urlIsNotEmpty 
-      :: (Monoid a, Eq a) 
-      => a 
-      -> Result Text a
-    urlIsNotEmpty x =
-      if (x == mempty)
-        then Error "URL must not be empty"
-        else Success x
-
     urlIsConnected 
       :: (Monad m, MonadIO m) 
       => Text 
@@ -83,18 +70,21 @@ sourceForm uuid timestamp = do
         giveUp = const $ return (5,0,0)
 
 
+isFormattedLikeURL :: Text -> Bool
+isFormattedLikeURL = isJust . parseUrl . T.unpack
+
 isNotEmpty :: Text -> Bool
 isNotEmpty = not . T.null
 
 
 
 handleSources :: Handler App App ()
-handleSources = method GET handleListSources <|> method POST handleFormSubmit
+handleSources = method GET handleListSources <|> method POST handleSourceForm
 
 handleNewSource :: Handler App App ()
-handleNewSource = method GET handleFormSubmit
+handleNewSource = method GET handleSourceForm
 
-handleFormSubmit = do 
+handleSourceForm = do 
   uuid            <- liftIO nextRandom
   timestamp       <- liftIO getCurrentTime
   (view, result)  <- runForm "source" $ sourceForm uuid timestamp

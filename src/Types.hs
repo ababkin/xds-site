@@ -39,3 +39,15 @@ instance ToRow Source where
                     , toField createdAt
                     , toField updatedAt
                     ]
+
+
+data UserRegistration = UserRegistration {
+    firstName             :: Text
+  , lastName              :: Text
+  , login                 :: Text
+  , email                 :: Text
+  , password              :: Text
+  , passwordConfirmation  :: Text
+  } deriving Show
+
+
