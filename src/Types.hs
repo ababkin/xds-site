@@ -1,14 +1,23 @@
+{-# LANGUAGE NamedFieldPuns #-}
+
 module Types where
 
 import Control.Applicative ((<$>), (<*>))
 import Data.Text (Text)
-import Database.PostgreSQL.Simple.FromRow
+import Database.PostgreSQL.Simple.FromRow (FromRow, fromRow, field)
+import Database.PostgreSQL.Simple.ToRow (ToRow, toRow)
+import Database.PostgreSQL.Simple.ToField (toField)
+import Data.UUID (UUID)
+import Data.Time.Clock (UTCTime)
 
 
 data Source = Source {
-    title       :: Text
+    uuid        :: UUID
+  , title       :: Text
   , description :: Text
   , url         :: Text
+  , createdAt   :: UTCTime
+  , updatedAt   :: UTCTime
   } deriving Show
 
 instance FromRow Source where
@@ -16,4 +25,17 @@ instance FromRow Source where
                 <$> field 
                 <*> field
                 <*> field
+                <*> field
+                <*> field
+                <*> field
 
+instance ToRow Source where
+  toRow Source{uuid, title, description,
+                  url, createdAt, updatedAt} = [
+                      toField uuid
+                    , toField title
+                    , toField description
+                    , toField url
+                    , toField createdAt
+                    , toField updatedAt
+                    ]
