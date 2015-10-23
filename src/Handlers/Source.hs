@@ -7,6 +7,7 @@ module Handlers.Source where
 import Control.Applicative ((<$>), (<*>), (<|>), pure)
 import Control.Arrow((>>>))
 import Control.Monad.IO.Class (liftIO, MonadIO)
+import Data.Maybe (isJust)
 import Data.Monoid (Monoid, mempty)
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -25,9 +26,9 @@ import Text.Digestive.Types(Result(..))
 import Text.Digestive (Form)
 import Text.Digestive.Form ((.:), text, check, validateM)
 import Text.Digestive.Snap (runForm)
-{- import Text.Digestive.Util -}
 import Text.Digestive.Heist (digestiveSplices, bindDigestiveSplices)
-import Network.HTTP.Client (HttpException)
+
+import Network.HTTP.Client (HttpException, parseUrl)
 import Network.HTTP (simpleHTTP, getRequest, getResponseCode)
 import Control.Exception (catch)
 import Control.Monad.Catch (MonadThrow, MonadCatch, Exception)
@@ -45,36 +46,46 @@ sourceForm uuid timestamp = do
   Source  <$> pure uuid  
           <*> "title"       .: check "Title must not be empty" isNotEmpty (text Nothing)
           <*> "description" .: text Nothing
-          <*> "url"         .: validateM urlIsConnected (text Nothing)
+          <*> "url"         .: urlValidation (text Nothing)
           <*> pure timestamp
           <*> pure timestamp
+
+  where
+    urlValidation = 
+      validateM urlIsConnected . 
+      check "URL must have correct format" isFormattedLikeURL .
+      check "URL must not be empty" isNotEmpty
+
+    isFormattedLikeURL :: Text -> Bool
+    isFormattedLikeURL = isJust . parseUrl . T.unpack
+    
+    urlIsNotEmpty 
+      :: (Monoid a, Eq a) 
+      => a 
+      -> Result Text a
+    urlIsNotEmpty x =
+      if (x == mempty)
+        then Error "URL must not be empty"
+        else Success x
+
+    urlIsConnected 
+      :: (Monad m, MonadIO m) 
+      => Text 
+      -> m (Result Text Text)
+    urlIsConnected url = do
+      code <- liftIO $ catch (getResponseCode =<< simpleHTTP (getRequest $ T.unpack url)) giveUp
+      return $ case code of
+        (2,_,_) -> Success url
+        (3,_,_) -> Success url
+        _       -> Error "Could not successfully ping the URL"
+      where
+        giveUp :: (MonadThrow m) => HttpException -> m (Int, Int, Int)
+        giveUp = const $ return (5,0,0)
 
 
 isNotEmpty :: Text -> Bool
 isNotEmpty = not . T.null
 
-urlIsNotEmpty 
-  :: (Monoid a, Eq a) 
-  => a 
-  -> Result Text a
-urlIsNotEmpty x =
-  if (x == mempty)
-     then Error "URL must not be empty"
-     else Success x
-
-urlIsConnected 
-  :: (Monad m, MonadIO m) 
-  => Text 
-  -> m (Result Text Text)
-urlIsConnected url = do
-  code <- liftIO $ catch (getResponseCode =<< simpleHTTP (getRequest $ T.unpack url)) giveUp
-  return $ case code of
-    (2,_,_) -> Success url
-    _       -> Error "Could not successfully ping the URL"
-  
-  where
-    giveUp :: (MonadThrow m) => HttpException -> m (Int, Int, Int)
-    giveUp = const $ return (5,0,0)
 
 
 handleSources :: Handler App App ()
