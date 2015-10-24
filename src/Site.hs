@@ -21,14 +21,14 @@ import Snap.Snaplet.Sass (sassServe, initSass)
 import Snap.Snaplet.Auth.Backends.PostgresqlSimple (initPostgresAuth)
 import Snap.Snaplet.PostgresqlSimple (pgsInit)
 
-import Application (App, AppHandler, 
-  auth, db, sess, heist, sass)
 import Types (Source(title, description, url))
 import Handlers.Auth (handleLogin, handleLoginSubmit, handleLogout)
 import Handlers.Source (handleSources, handleListSources, handleNewSource)
 import Handlers.User (handleNewUser, handleUsers)
 
-import Application (App(App))
+import Application (App(App), AppHandler, 
+  auth, db, sess, heist, sass)
+
 
 
 routes :: [(ByteString, Handler App App ())]
