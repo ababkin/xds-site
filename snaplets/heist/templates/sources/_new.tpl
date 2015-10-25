@@ -1,4 +1,8 @@
-<h1>Submit a new source</h1>
-
+<bind tag="action">/sources</bind>
+<bind tag="method">post</bind>
 <bind tag="submitText">Submit</bind>
-<apply template="form"/>
+
+<div class="col-md-6">
+  <h2>New Source</h2>
+  <apply template="form"/>
+</div>

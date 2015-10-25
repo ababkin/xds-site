@@ -1,4 +1,4 @@
-<dfForm action="/sources" role="form" class="source">
+<dfForm action="${action}" role="form" class="source" method="${method}">
   <dfChildErrorList/>
 
   <div class="form-group">

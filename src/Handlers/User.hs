@@ -3,52 +3,64 @@
 
 module Handlers.User where
 
+import Control.Monad (void)
 import Control.Monad.IO.Class (liftIO, MonadIO)
 import Control.Applicative ((<$>), (<*>), (<|>), pure)
-import           Snap.Core (method, redirect, Method(GET, POST))
-import           Snap.Snaplet (Handler)
-import           Snap.Snaplet.Auth (createUser, AuthManager)
+import Data.ByteString.Char8 (ByteString)
+import qualified Data.ByteString.Char8 as BS8
+{- import System.Random (newStdGen, randomRs) -}
+import Data.Aeson (Value(String))
+
+import Snap.Core (method, redirect, Method(GET, POST))
+import Snap.Snaplet (Handler, with)
+import Snap.Snaplet.Auth (createUser, AuthManager, saveUser, userRoles, 
+  Role(Role), userEmail, userMeta)
 import Text.Digestive (Form)
 import Text.Digestive.Form ((.:), text, check, validateM)
 import Text.Digestive.Snap (runForm)
 import Data.Text (Text)
-import Snap.Snaplet.Heist (heistLocal, render)
+import Snap.Snaplet.Heist (heistLocal, render, )
+import Heist.Interpreted (bindSplices, textSplice, bindStrings)
 import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 import Text.Digestive.Heist (digestiveSplices, bindDigestiveSplices)
 import Data.Text.Encoding (encodeUtf8)
+import Heist ((##))
+import qualified Data.HashMap.Strict as HM
 
-import Application (App)
+import Application (App, AppHandler, auth)
 import Types (UserRegistration(..))
+import Forms.UserRegistration (userRegistrationForm)
+import Utils (showForm)
 
 
-registrationForm 
-  :: (Monad m, MonadIO m) 
-  => Form Text m UserRegistration 
-registrationForm = do
-  UserRegistration  <$> "first_name"  .: text Nothing
-                    <*> "last_name"   .: text Nothing
-                    <*> "login"       .: check "Login must not be empty" isNotEmpty (text Nothing)
-                    <*> "email"       .: check "Email must not be empty" isNotEmpty (text Nothing)
-                    <*> "password"              .: check "Password must not be empty" isNotEmpty (text Nothing)
-                    <*> "password_confirmation" .: text Nothing
+registrationHandler :: AppHandler ()
+registrationHandler = do 
+    (form, userRegistration) <- runForm "form" userRegistrationForm
+    maybe (showForm "users/new" form) createNewUser userRegistration
 
-isNotEmpty :: Text -> Bool
-isNotEmpty = not . T.null
+createNewUser :: UserRegistration -> AppHandler ()
+createNewUser UserRegistration{firstName, lastName, username, email, password} = do
+    {- password <- liftIO createRandomPassword -}
+    eitherUser <- with auth $ createUser username $ T.encodeUtf8 password
+    case eitherUser of
+      Right user -> do
+        void . with auth . saveUser $ user { 
+            userRoles = [Role "Regular"] 
+          , userEmail = Just email
+          , userMeta = HM.fromList [("firstName", String firstName), ("lastName", String lastName)]
+          }
+        heistLocal (bindStrings messages) $ render "users/registration-done"
+      Left err ->
+        error $ show err
+  where
+    messages = do
+      "firstName"  ## firstName
+      "lastName"   ## lastName
 
-
-handleNewUser :: Handler App (AuthManager App) ()
-handleNewUser = method GET handleRegistrationForm
-
-handleUsers :: Handler App (AuthManager App) ()
-handleUsers = method POST handleRegistrationForm
-
-handleRegistrationForm = do
-  (view, result)  <- runForm "user" registrationForm
-  case result of
-    Just UserRegistration{login, password} -> do
-      createUser login $ encodeUtf8 password
-      redirect "/"
-    Nothing -> 
-      heistLocal (bindDigestiveSplices view) $ render "users/new"
-
+{- createRandomPassword :: IO ByteString -}
+{- createRandomPassword = do -}
+    {- gen <- newStdGen -}
+    {- let pw = take 10 $ randomRs ('a', 'z') gen -}
+    {- return $ BS8.pack pw -}
 

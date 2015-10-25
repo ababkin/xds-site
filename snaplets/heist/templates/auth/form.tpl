@@ -1,29 +1,26 @@
-<div class="col-md-6">
-  <div class="alert alert-danger" role="alert"><loginError/></div>
-  <h2>Log in</h2>
-  <form role="form" class="new_user" id="new_user" action="/login" accept-charset="UTF-8" method="post">
-    <div class="form-group">
-      <label class="control-label required" for="user_login">Email</label>
-      <input autofocus="autofocus" class="form-control" type="login" value="" name="login" id="user_login" autocomplete="off">
-    </div>
-    <div class="form-group">
-      <label class="control-label required" for="user_password">Password</label>
-      <input autocomplete="off" class="form-control" type="password" name="password" id="user_password">
-    </div>
-    <div class="checkbox">
-      <label for="user_remember_me">
-        <input name="remember_me" type="hidden" value="0">
-        <input type="checkbox" value="1" name="remember_me" id="user_remember_me"> 
-        Remember me
-      </label>
-    </div>
+<dfForm action="${action}" role="form" class="login" method="${method}">
+  <dfChildErrorList/>
 
-    <div class="actions">
-      <input type="submit" name="commit" value="Log in" class="btn btn-default">
-    </div>
-  </form>
-  <a href="/signup">Sign up</a>
-  <br>
-  <a href="/users">Forgot your password?</a>
-  <br>
-</div>
+  <div class="form-group">
+    <dfLabel ref="username" class="control-label">Username</dfLabel>
+    <dfInputText ref="username" class="form-control" autofocus="autofocus"/>
+  </div>
+
+  <div class="form-group">
+    <dfLabel ref="password" class="control-label required">Password</dfLabel>
+    <dfInputPassword ref="password" class="form-control"/>
+  </div>
+
+  <div class="checkbox">
+    <dfLabel class="control-label" ref="remember">
+      <dfInputCheckbox ref="remember"/>
+      Remember me
+    </dfLabel>
+  </div>
+
+  <div class="form-group">
+    <dfInputSubmit value="${submitText}" class="btn btn-primary" data-disable-with="Submitting..."/>
+  </div>
+
+</dfForm>
+

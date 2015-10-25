@@ -44,10 +44,16 @@ instance ToRow Source where
 data UserRegistration = UserRegistration {
     firstName             :: Text
   , lastName              :: Text
-  , login                 :: Text
+  , username              :: Text
   , email                 :: Text
   , password              :: Text
-  , passwordConfirmation  :: Text
   } deriving Show
+
+
+data Login = Login
+  { loginUsername :: Text  -- ^ username for login
+  , loginPassword :: Text  -- ^ password for login
+  , loginRemember :: Bool  -- ^ remember token for login
+  } deriving (Show)
 
 

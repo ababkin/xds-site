@@ -1,3 +1,4 @@
+<bind tag="action">/signup</bind>
 <bind tag="method">post</bind>
 <bind tag="submitText">Sign Up</bind>
 

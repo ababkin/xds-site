@@ -22,9 +22,9 @@ import Snap.Snaplet.Auth.Backends.PostgresqlSimple (initPostgresAuth)
 import Snap.Snaplet.PostgresqlSimple (pgsInit)
 
 import Types (Source(title, description, url))
-import Handlers.Auth (handleLogin, handleLoginSubmit, handleLogout)
-import Handlers.Source (handleSources, handleListSources, handleNewSource)
-import Handlers.User (handleNewUser, handleUsers)
+import Handlers.Auth (loginHandler, logoutHandler)
+import Handlers.Source (sourcesHandler, newSourceHandler, listSourcesHandler)
+import Handlers.User (registrationHandler)
 
 import Application (App(App), AppHandler, 
   auth, db, sess, heist, sass)
@@ -32,14 +32,14 @@ import Application (App(App), AppHandler,
 
 
 routes :: [(ByteString, Handler App App ())]
-routes =  [ ("/sources",      handleSources)
-          , ("/sources/new",  handleNewSource)
+routes =  [ ("/sources",      sourcesHandler)
+          , ("/sources/new",  newSourceHandler)
           
-          , ("/users",        with auth handleUsers)
-          , ("/signup",       with auth handleNewUser)
+          {- , ("/users",        usersHandler) -}
+          , ("/signup",       registrationHandler)
 
-          , ("/login",        with auth handleLoginSubmit)
-          , ("/logout",       with auth handleLogout)
+          , ("/login",        loginHandler)
+          , ("/logout",       logoutHandler)
 
           , ("/sass",         with sass sassServe)
           , ("/static",       serveDirectory "static")
@@ -62,7 +62,7 @@ app = makeSnaplet "app" "An snaplet example application." Nothing $ do
     addAuthSplices h auth
     wrapSite (\h -> with auth loginByRememberToken >> h)
     {- wrapSite (<|> the404) -}
-    wrapSite (\site -> ifTop handleListSources <|> site)
+    wrapSite (\site -> ifTop listSourcesHandler <|> site)
     
     return $ App h se a d sa
 

@@ -19,49 +19,42 @@ import Snap.Core (method, redirect, Method(GET, POST))
 import Snap.Snaplet (Handler, with)
 import Snap.Snaplet.Auth (isLoggedIn)
 import Snap.Snaplet.Heist (heistLocal, render, withSplices)
-import Snap.Snaplet.PostgresqlSimple (query_, execute, query)
 import Text.Digestive (Form)
 import Text.Digestive.Form ((.:), text, check, checkM)
 import Text.Digestive.Heist (digestiveSplices, bindDigestiveSplices)
 import Text.Digestive.Snap (runForm)
 import Text.Digestive.Types(Result(..))
 
-import Application (App, auth)
+import Application (App, AppHandler, auth)
 import Types (Source(..))
 import Forms.Source (sourceForm)
+import Utils (ensureLoggedIn)
+import Store.Source (fetchAll, store)
 
+sourcesHandler :: AppHandler ()
+sourcesHandler = method GET listSourcesHandler <|> method POST sourceFormHandler
 
+newSourceHandler :: AppHandler ()
+newSourceHandler = method GET sourceFormHandler
 
-handleSources :: Handler App App ()
-handleSources = method GET handleListSources <|> method POST handleSourceForm
-
-handleNewSource :: Handler App App ()
-handleNewSource = method GET handleSourceForm
-
-handleSourceForm = do 
+sourceFormHandler = ensureLoggedIn $ do 
   uuid            <- liftIO nextRandom
   timestamp       <- liftIO getCurrentTime
   (view, result)  <- runForm "source" $ sourceForm uuid timestamp
   case result of
     Just newSource  -> do
-      _ <- execute "INSERT INTO sources VALUES (?, ?, ?, ?, ?, ?)" newSource
+      store newSource
       redirect "/"
     Nothing -> 
       heistLocal (bindDigestiveSplices view) $ render "sources/new"
 
 
 
-handleListSources :: Handler App App ()
-handleListSources = do
-  loggedIn <- with auth isLoggedIn
-  if loggedIn
-    then do
-      sources <- query_ "SELECT * FROM sources"
-      withSplices (sourcesSplices sources) $ render "sources/index"
+listSourcesHandler :: AppHandler ()
+listSourcesHandler = do
+  sources <- fetchAll
+  withSplices (sourcesSplices sources) $ render "sources/index"
 
-    else
-      redirect "/login"
-      
   where
     sourcesSplices sources =
       "sources" ## mapSplices sourceSplice sources

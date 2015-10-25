@@ -1,4 +1,4 @@
-<dfForm action="/users" role="form" class="user" method="${method}">
+<dfForm action="${action}" role="form" class="user" method="${method}">
   <dfChildErrorList/>
 
   <div class="form-group">
@@ -12,8 +12,8 @@
   </div>
 
   <div class="form-group">
-    <dfLabel ref="login" class="control-label required">Login</dfLabel>
-    <dfInputText ref="login" class="form-control"/>
+    <dfLabel ref="username" class="control-label required">Username</dfLabel>
+    <dfInputText ref="username" class="form-control"/>
   </div>
 
   <div class="form-group">
@@ -24,12 +24,12 @@
   <div class="form-group">
     <dfLabel ref="password" class="control-label required">Password</dfLabel>
     <em> (8 characters minimum) </em>
-    <dfInputText ref="password" class="form-control"/>
+    <dfInputPassword ref="password" class="form-control"/>
   </div>
 
   <div class="form-group">
     <dfLabel ref="password_confirmation" class="control-label required">Password Confirmation</dfLabel>
-    <dfInputText ref="password_confirmation" class="form-control"/>
+    <dfInputPassword ref="password_confirmation" class="form-control"/>
   </div>
 
 
