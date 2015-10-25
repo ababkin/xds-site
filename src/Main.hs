@@ -24,12 +24,16 @@ import           Snap.Snaplet.Config
 import           Snap.Core
 import           System.IO
 import           Site
+import Paths_xds_site (version)
+import Data.Version (showVersion)
+import System.Environment (getArgs)
 
 #ifdef DEVELOPMENT
 import           Snap.Loader.Dynamic
 #else
 import           Snap.Loader.Static
 #endif
+
 
 
 ------------------------------------------------------------------------------
@@ -66,7 +70,7 @@ import           Snap.Loader.Static
 -- size, and having to recompile the server for any code change.
 --
 main :: IO ()
-main = do
+main = withVersionOpt $ do
     -- Depending on the version of loadSnapTH in scope, this either enables
     -- dynamic reloading, or compiles it without. The last argument to
     -- loadSnapTH is a list of additional directories to watch for changes to
@@ -79,6 +83,12 @@ main = do
     _ <- try $ httpServe conf site :: IO (Either SomeException ())
     cleanup
 
+withVersionOpt :: IO () -> IO ()
+withVersionOpt go = do  
+  args <- getArgs
+  case args of
+    ["--version"] -> putStrLn $ showVersion version
+    _ -> go
 
 ------------------------------------------------------------------------------
 -- | This action loads the config used by this application. The loaded config

@@ -1,0 +1,9 @@
+.git
+.gitignore
+dist
+log
+setenv.sh
+cabal.sandbox.config
+.cabal-sandbox
+xds-site
+
