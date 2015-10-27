@@ -12,6 +12,5 @@ setenv.sh
 *.ps
 xds-site
 site_key.txt
-snaplets/postgresql-simple/**/*
 .sass-cache/**/*
 users.json
