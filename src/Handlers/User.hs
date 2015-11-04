@@ -19,7 +19,7 @@ import Text.Digestive (Form)
 import Text.Digestive.Form ((.:), text, check, validateM)
 import Text.Digestive.Snap (runForm)
 import Data.Text (Text)
-import Snap.Snaplet.Heist (heistLocal, render, )
+import Snap.Snaplet.Heist (heistLocal, render)
 import Heist.Interpreted (bindSplices, textSplice, bindStrings)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
@@ -27,8 +27,9 @@ import Text.Digestive.Heist (digestiveSplices, bindDigestiveSplices)
 import Data.Text.Encoding (encodeUtf8)
 import Heist ((##))
 import qualified Data.HashMap.Strict as HM
+import Snap.Extras.FlashNotice (flashInfo)
 
-import Application (App, AppHandler, auth)
+import Application (App, AppHandler, auth, sess)
 import Types (UserRegistration(..))
 import Forms.UserRegistration (userRegistrationForm)
 import Utils (showForm)
@@ -39,24 +40,29 @@ registrationHandler = do
     (form, userRegistration) <- runForm "form" userRegistrationForm
     maybe (showForm "users/new" form) createNewUser userRegistration
 
-createNewUser :: UserRegistration -> AppHandler ()
-createNewUser UserRegistration{firstName, lastName, username, email, password} = do
-    {- password <- liftIO createRandomPassword -}
-    eitherUser <- with auth $ createUser username $ T.encodeUtf8 password
-    case eitherUser of
-      Right user -> do
-        void . with auth . saveUser $ user { 
-            userRoles = [Role "Regular"] 
-          , userEmail = Just email
-          , userMeta = HM.fromList [("firstName", String firstName), ("lastName", String lastName)]
-          }
-        heistLocal (bindStrings messages) $ render "users/registration-done"
-      Left err ->
-        error $ show err
   where
-    messages = do
-      "firstName"  ## firstName
-      "lastName"   ## lastName
+    createNewUser :: UserRegistration -> AppHandler ()
+    createNewUser UserRegistration{firstName, lastName, username, email, password} = do
+        {- password <- liftIO createRandomPassword -}
+        eitherUser <- with auth $ createUser username $ T.encodeUtf8 password
+        case eitherUser of
+          Right user -> do
+            void . with auth . saveUser $ user { 
+                userRoles = [Role "Regular"] 
+              , userEmail = Just email
+              , userMeta = HM.fromList [("firstName", String firstName), ("lastName", String lastName)]
+              }
+            {- heistLocal (bindStrings messages) $ render "users/registration-done" -}
+            flashInfo sess "Registration successful, please login now"
+            redirect "/login"
+
+
+          Left err ->
+            error $ show err
+      where
+        messages = do
+          "firstName"  ## firstName
+          "lastName"   ## lastName
 
 {- createRandomPassword :: IO ByteString -}
 {- createRandomPassword = do -}

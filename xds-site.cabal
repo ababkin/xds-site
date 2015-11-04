@@ -37,6 +37,7 @@ Executable xds-site
     -- random                    >= 1.0.1.1 && < 1.1,
     snap                      >= 0.13     && < 0.15,
     snap-core                 >= 0.9      && < 0.10,
+    snap-extras               >= 0.11.0.2 && < 0.12,
     snap-loader-static        >= 0.9      && < 0.10,
     snap-server               >= 0.9      && < 0.10,
     snaplet-postgresql-simple >= 0.6.0.4  && < 0.7,

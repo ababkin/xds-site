@@ -24,8 +24,9 @@ import Text.Digestive.Form ((.:), text, check, checkM)
 import Text.Digestive.Heist (digestiveSplices, bindDigestiveSplices)
 import Text.Digestive.Snap (runForm)
 import Text.Digestive.Types(Result(..))
+import Snap.Extras.FlashNotice (flashInfo)
 
-import Application (App, AppHandler, auth)
+import Application (App, AppHandler, auth, sess)
 import Types (Source(..))
 import Forms.Source (sourceForm)
 import Utils (ensureLoggedIn)
@@ -53,6 +54,7 @@ sourceFormHandler = ensureLoggedIn $ do
 listSourcesHandler :: AppHandler ()
 listSourcesHandler = do
   sources <- fetchAll
+  flashInfo sess "just rendered sources"
   withSplices (sourcesSplices sources) $ render "sources/index"
 
   where

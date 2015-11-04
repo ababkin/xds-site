@@ -20,6 +20,9 @@
   </ifLoggedOut>
 
   <ifLoggedIn>
+    <li>
+      <loggedInUser/>
+    </li>
     <li>    
       <a href="/sources/new"><i class="fa fa-plus fa-fw"></i></a>
     </li>

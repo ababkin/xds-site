@@ -25,6 +25,7 @@ import Types (Source(title, description, url))
 import Handlers.Auth (loginHandler, logoutHandler)
 import Handlers.Source (sourcesHandler, newSourceHandler, listSourcesHandler)
 import Handlers.User (registrationHandler)
+import Snap.Extras.FlashNotice (initFlashNotice)
 
 import Application (App(App), AppHandler, 
   auth, db, sess, heist, sass)
@@ -64,6 +65,8 @@ app = makeSnaplet "app" "An snaplet example application." Nothing $ do
     {- wrapSite (<|> the404) -}
     wrapSite (\site -> ifTop listSourcesHandler <|> site)
     
+    initFlashNotice h sess
+
     return $ App h se a d sa
 
 
