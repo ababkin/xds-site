@@ -24,28 +24,28 @@ import Types (UserRegistration(..))
 
 userRegistrationForm 
   :: Form Text AppHandler UserRegistration 
-userRegistrationForm = do
+userRegistrationForm =
   UserRegistration  <$> "first_name"  .: text Nothing
                     <*> "last_name"   .: text Nothing
                     <*> "username"    .: validateUsername (text Nothing)
                     <*> "email"       .: validateEmail (text Nothing)
-                    <*> (fst <$> validatePassword)
+                    <*> "password" .: (fst <$> validatePassword)
 
   where
     validatePassword =
-      check "Passwords do not match:" (\(a,b) -> a == b) passwordF
+      check "Passwords do not match:" (uncurry (==)) passwordF
       where
         passwordF = (,) 
           <$> "password" .: check "Password must not be empty" isNotEmpty (text Nothing) 
-          <*> "password_confirmation" .: check "Password confirmation must not be empty" isNotEmpty (text Nothing)
+          <*> "password_confirmation" .: text Nothing
         
 
     validateEmail =
-      check "Email must use correct format" (E.isValid . T.encodeUtf8) .
+      check "Email must have the correct format" (E.isValid . T.encodeUtf8) .
       check "Email must not be empty" isNotEmpty
 
     validateUsername = 
-      checkM "Username is already used" usernameUnused .
+      checkM "Username is already taken" usernameUnused .
       check "Username must not be empty" isNotEmpty
       where
         usernameUnused = liftM not . with auth . usernameExists

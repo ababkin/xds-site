@@ -12,9 +12,7 @@ import Data.Text (Text)
 import qualified Data.ByteString.Char8 as BS8
 import Snap.Snaplet (Handler, with)
 import Snap.Snaplet.Auth (isLoggedIn)
-import Snap.Extras.FlashNotice (flashSplice)
-import Heist ((##))
-import Heist.Interpreted (bindSplices, textSplice, bindStrings, runChildrenWithText)
+{- import Heist.Interpreted (bindSplices, textSplice, bindStrings, runChildrenWithText) -}
 
 import Application (AppHandler, auth, sess)
 
@@ -35,14 +33,8 @@ showForm template form =
   {- heistLocal (bindDigestiveSplices form) . render $ BS8.pack template -}
   {- withSplices flashSplices . render $ BS8.pack template -}
 
-  withSplices (digestiveSplices form <> flashSplices) . render $ BS8.pack template
+  withSplices (digestiveSplices form) . render $ BS8.pack template
 
-
-  {- where -}
-    {- template = BS8.pack $ prefix ++ "/form" -}
-  where
-    flashSplices = do
-            "flash" ## flashSplice sess
 
 ensureLoggedIn action = do  
   loggedIn <- with auth isLoggedIn

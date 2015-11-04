@@ -20,6 +20,10 @@
     <div id="wrapper">
 
       <apply template="_navbar"/>
+      <flash type='error'/>
+      <flash type='warning'/>
+      <flash type='info'/>
+      <flash type='success'/>
 
       <div id="page-wrapper" style="min-height: 431px;">
         <apply-content/>

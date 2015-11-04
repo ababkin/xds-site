@@ -5,9 +5,6 @@
 <apply template="/layout/base">
   <div class="col-md-6">
     <h2>Log in</h2>
-
-      <flash/>
-
       <apply template="form"/>
     <a href="/signup">Sign up</a>
     <br>

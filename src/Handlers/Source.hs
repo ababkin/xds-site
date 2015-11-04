@@ -6,7 +6,7 @@ module Handlers.Source where
 
 import Control.Applicative ((<$>), (<*>), (<|>), pure)
 import Control.Monad.IO.Class (liftIO, MonadIO)
-import Data.Monoid (Monoid, mempty)
+import Data.Monoid (Monoid, mempty, (<>))
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Time.Clock (getCurrentTime, UTCTime)
@@ -24,7 +24,7 @@ import Text.Digestive.Form ((.:), text, check, checkM)
 import Text.Digestive.Heist (digestiveSplices, bindDigestiveSplices)
 import Text.Digestive.Snap (runForm)
 import Text.Digestive.Types(Result(..))
-import Snap.Extras.FlashNotice (flashInfo)
+import Snap.Extras.FlashNotice (flashSuccess)
 
 import Application (App, AppHandler, auth, sess)
 import Types (Source(..))
@@ -43,18 +43,17 @@ sourceFormHandler = ensureLoggedIn $ do
   timestamp       <- liftIO getCurrentTime
   (view, result)  <- runForm "source" $ sourceForm uuid timestamp
   case result of
-    Just newSource  -> do
+    Just newSource@Source{title} -> do
       store newSource
+      flashSuccess sess $ "Successfully added " <> title <> " source"
       redirect "/"
     Nothing -> 
       heistLocal (bindDigestiveSplices view) $ render "sources/new"
 
 
-
 listSourcesHandler :: AppHandler ()
 listSourcesHandler = do
   sources <- fetchAll
-  flashInfo sess "just rendered sources"
   withSplices (sourcesSplices sources) $ render "sources/index"
 
   where

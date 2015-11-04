@@ -27,7 +27,7 @@ import Text.Digestive.Heist (digestiveSplices, bindDigestiveSplices)
 import Data.Text.Encoding (encodeUtf8)
 import Heist ((##))
 import qualified Data.HashMap.Strict as HM
-import Snap.Extras.FlashNotice (flashInfo)
+import Snap.Extras.FlashNotice (flashSuccess)
 
 import Application (App, AppHandler, auth, sess)
 import Types (UserRegistration(..))
@@ -53,7 +53,7 @@ registrationHandler = do
               , userMeta = HM.fromList [("firstName", String firstName), ("lastName", String lastName)]
               }
             {- heistLocal (bindStrings messages) $ render "users/registration-done" -}
-            flashInfo sess "Registration successful, please login now"
+            flashSuccess sess "Registration successful, please login now"
             redirect "/login"
 
 
