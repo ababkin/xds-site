@@ -30,6 +30,7 @@ import Snap.Extras.FlashNotice (initFlashNotice)
 import Application (App(App), AppHandler, 
   auth, db, sess, heist, sass)
 import Flash (addFlashSplices)
+{- import Bootstrap (addBootstrapSplices) -}
 
 
 routes :: [(ByteString, Handler App App ())]
@@ -59,14 +60,15 @@ app = makeSnaplet "app" "An snaplet example application." Nothing $ do
 
     sa    <- nestSnaplet "sass" sass initSass
   
+    initFlashNotice h sess
     addRoutes routes
     addAuthSplices h auth
     addFlashSplices h sess
+    {- addBootstrapSplices h -}
     wrapSite (\h -> with auth loginByRememberToken >> h)
     {- wrapSite (<|> the404) -}
     wrapSite (\site -> ifTop listSourcesHandler <|> site)
     
-    initFlashNotice h sess
 
     return $ App h se a d sa
 

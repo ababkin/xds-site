@@ -4,6 +4,7 @@ DROP TABLE sources;
 
 CREATE TABLE sources (
     id          uuid primary key,
+    uid         integer REFERENCES snap_auth_user,
     title       varchar(256) NOT NULL,
     description text,
     url         varchar(256) NOT NULL,

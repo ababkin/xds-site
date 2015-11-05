@@ -1,25 +1,31 @@
 <dfForm action="${action}" role="form" class="login" method="${method}">
 
+  <dfIfErrors ref="credentials">
+    <div class="alert alert-danger" role="alert">
+      <dfErrorList ref="credentials"/>
+    </div> 
+  </dfIfErrors>
+
   <div class="form-group">
-    <dfLabel ref="username" class="control-label">Username</dfLabel>
-    <dfInputText ref="username" class="form-control" autofocus="autofocus"/>
+    <dfLabel ref="credentials.username" class="control-label">Username</dfLabel>
+    <dfInputText ref="credentials.username" class="form-control" autofocus="autofocus"/>
     <span class="help-block">
-      <dfErrorList ref="username"/>
+      <dfErrorList ref="credentials.username"/>
     </span>
   </div>
 
   <div class="form-group">
-    <dfLabel ref="password" class="control-label required">Password</dfLabel>
-    <dfInputPassword ref="password" class="form-control"/>
+    <dfLabel ref="credentials.password" class="control-label required">Password</dfLabel>
+    <dfInputPassword ref="credentials.password" class="form-control"/>
     <span class="help-block">
-      <dfErrorList ref="password"/>
+      <dfErrorList ref="credentials.password"/>
     </span>
 
   </div>
 
   <div class="checkbox">
-    <dfLabel class="control-label" ref="remember">
-      <dfInputCheckbox ref="remember"/>
+    <dfLabel class="control-label" ref="credentials.remember">
+      <dfInputCheckbox ref="credentials.remember"/>
       Remember me
     </dfLabel>
   </div>

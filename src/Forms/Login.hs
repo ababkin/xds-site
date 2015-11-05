@@ -16,17 +16,18 @@ import Snap.Snaplet.Auth (lookupByLogin, authenticatePassword, Password(ClearTex
 import Data.Maybe (isNothing)
 
 import Application (App, AppHandler, auth)
-import Forms.Validators (isFormattedLikeURL, isNotEmpty)
+import Forms.Validators (isFormattedLikeURL, isNotEmpty, isNotEmpty)
 import Types (Login(..))
-import Forms.Validators (isNotEmpty)
 
 
 loginForm :: Form Text AppHandler Login
 loginForm =
-    checkM invalidLoginMsg validLogin $ Login
-      <$> "username" .: check "Username must not be empty" isNotEmpty (text Nothing)
-      <*> "password" .: check "Password must not be empty" isNotEmpty (text Nothing)
-      <*> "remember" .: bool (Just False)
+    "credentials" .: checkM invalidLoginMsg validLogin (
+      Login
+        <$> "username" .: check "Username must not be empty" isNotEmpty (text Nothing)
+        <*> "password" .: check "Password must not be empty" isNotEmpty (text Nothing)
+        <*> "remember" .: bool (Just False)
+      )
 
   where
 

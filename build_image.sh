@@ -1,0 +1,1 @@
+deploy snaplets static

@@ -13,6 +13,7 @@ import Data.Time.Clock (UTCTime)
 
 data Source = Source {
     uuid        :: UUID
+  , uid         :: Int
   , title       :: Text
   , description :: Text
   , url         :: Text
@@ -28,11 +29,13 @@ instance FromRow Source where
                 <*> field
                 <*> field
                 <*> field
+                <*> field
 
 instance ToRow Source where
-  toRow Source{uuid, title, description,
+  toRow Source{uuid, uid, title, description,
                   url, createdAt, updatedAt} = [
                       toField uuid
+                    , toField uid
                     , toField title
                     , toField description
                     , toField url

@@ -27,4 +27,7 @@
 .alert {
   margin-bottom: 0; }
 
+span.help-block ul li {
+  color: #d33; }
+
 /*# sourceMappingURL=overrides.css.map */

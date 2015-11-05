@@ -12,4 +12,4 @@ fetchAll :: AppHandler [Source]
 fetchAll = query_ "SELECT * FROM sources"
 
 store :: Source -> AppHandler ()
-store = void . execute "INSERT INTO sources VALUES (?, ?, ?, ?, ?, ?)"
+store = void . execute "INSERT INTO sources VALUES (?, ?, ?, ?, ?, ?, ?)"

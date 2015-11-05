@@ -22,12 +22,14 @@ import Types (Source(..))
 
 
 sourceForm 
-  :: (Monad m, MonadIO m) 
+  :: (Monad m, MonadIO m)
   => UUID 
+  -> Text
   -> UTCTime 
   -> Form Text m Source
-sourceForm uuid timestamp = do
-  Source  <$> pure uuid  
+sourceForm uuid uid timestamp =
+  Source  <$> pure uuid
+          <*> (pure . read $ T.unpack uid)
           <*> "title"       .: check "Title must not be empty" isNotEmpty (text Nothing)
           <*> "description" .: text Nothing
           <*> "url"         .: urlValidation (text Nothing)
@@ -37,7 +39,7 @@ sourceForm uuid timestamp = do
   where
     urlValidation = 
       checkM "Could not successfully ping the URL" isPingable . 
-      check "URL must have correct format" isFormattedLikeURL .
+      check "URL must have format similar to: http://example.com/some/data" isFormattedLikeURL .
       check "URL must not be empty" isNotEmpty
 
     isPingable 

@@ -15,8 +15,9 @@ import           Snap.Snaplet.Heist
 import           Heist
 import Heist.Interpreted (bindSplices, textSplice)
 import Text.Digestive.Snap (runForm)
+import Snap.Extras.FlashNotice (flashError)
 
-import Application (App, AppHandler, auth)
+import Application (App, AppHandler, auth, sess)
 import Forms.Login (loginForm)
 import Types (Login(..))
 import Utils (showForm)
@@ -29,8 +30,13 @@ loginHandler = do
 
 loginUserHandler :: Login -> AppHandler ()
 loginUserHandler Login{loginUsername, loginPassword, loginRemember} = do
-    with auth $ loginByUsername loginUsername password loginRemember
-    redirect "/"
+    eitherUser <- with auth $ loginByUsername loginUsername password loginRemember
+    case eitherUser of
+      Left err -> do
+        flashError sess "Invalid login / password combination"
+        redirect "/login"
+      Right _ ->
+        redirect "/"
   where
     password = ClearText $ T.encodeUtf8 loginPassword
 
