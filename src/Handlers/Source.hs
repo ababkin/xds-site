@@ -50,6 +50,7 @@ sourceFormHandler = ensureLoggedIn $ do
     Just newSource@Source{title} -> do
       store newSource
       flashSuccess sess $ "Successfully added " <> title <> " source"
+      liftIO $ track "source-create"
       redirect "/"
     Nothing -> 
       heistLocal (bindDigestiveSplices view) $ render "sources/new"
@@ -60,7 +61,7 @@ listSourcesHandler = do
   sources <- fetchAll
   withSplices (sourcesSplices sources) $ render "sources/index"
 
-  liftIO $ track "list-sources"
+  liftIO $ track "source-index"
 
   where
     sourcesSplices sources =

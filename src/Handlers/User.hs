@@ -33,7 +33,7 @@ import Application (App, AppHandler, auth, sess)
 import Types (UserRegistration(..))
 import Forms.UserRegistration (userRegistrationForm)
 import Utils (showForm)
-
+import Mixpanel (track)
 
 registrationHandler :: AppHandler ()
 registrationHandler = do 
@@ -54,6 +54,7 @@ registrationHandler = do
               }
             {- heistLocal (bindStrings messages) $ render "users/registration-done" -}
             flashSuccess sess "Registration successful, please login now"
+            liftIO $ track "user-create"
             redirect "/login"
 
 

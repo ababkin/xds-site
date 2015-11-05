@@ -32,10 +32,10 @@ track :: Text -> IO ()
 track e = do
   let event = Event e $ Properties "767b26ef69581c1e634bfc4a2e9e6fd1"
   r <- get $ toUrl event
-  case r ^. responseBody of
-    "1" -> putStrLn "event tracked successfully"
-    "0" -> putStrLn "Error: failed to track event"
-    x   -> putStrLn $ "Error: unknown track result received: " <> BL8.unpack x
+  putStrLn $ case r ^. responseBody of
+    "1" -> "event tracked successfully: " <> T.unpack e
+    "0" -> "Error: failed to track event: " <> show r
+    x   -> "Error: unknown track result received: " <> BL8.unpack x
 
   where
     toUrl :: Event -> String
