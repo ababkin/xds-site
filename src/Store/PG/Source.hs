@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Store.Source where
+module Store.PG.Source where
 
 import Control.Monad (void)
 import Snap.Snaplet.PostgresqlSimple (query_, execute, query)

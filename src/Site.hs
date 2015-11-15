@@ -21,7 +21,6 @@ import Snap.Snaplet.Sass (sassServe, initSass)
 import Snap.Snaplet.Auth.Backends.PostgresqlSimple (initPostgresAuth)
 import Snap.Snaplet.PostgresqlSimple (pgsInit)
 
-import Types (Source(title, description, url))
 import Handlers.Auth (loginHandler, logoutHandler)
 import Handlers.Source (sourcesHandler, newSourceHandler, listSourcesHandler)
 import Handlers.User (registrationHandler)

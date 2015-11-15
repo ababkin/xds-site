@@ -40,6 +40,7 @@ loginUserHandler Login{loginUsername, loginPassword, loginRemember} = do
         redirect "/login"
       Right _ -> do
         liftIO $ track "auth-login"
+        {- modifyResponse $ setHeader "Cache-Control" "no-cache" -}
         redirect "/"
   where
     password = ClearText $ T.encodeUtf8 loginPassword

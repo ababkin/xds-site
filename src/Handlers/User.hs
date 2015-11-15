@@ -42,15 +42,15 @@ registrationHandler = do
 
   where
     createNewUser :: UserRegistration -> AppHandler ()
-    createNewUser UserRegistration{firstName, lastName, username, email, password} = do
+    createNewUser UserRegistration{urFirstName, urLastName, urUsername, urEmail, urPassword} = do
         {- password <- liftIO createRandomPassword -}
-        eitherUser <- with auth $ createUser username $ T.encodeUtf8 password
+        eitherUser <- with auth $ createUser urUsername $ T.encodeUtf8 urPassword
         case eitherUser of
           Right user -> do
             void . with auth . saveUser $ user { 
                 userRoles = [Role "Regular"] 
-              , userEmail = Just email
-              , userMeta = HM.fromList [("firstName", String firstName), ("lastName", String lastName)]
+              , userEmail = Just urEmail
+              , userMeta = HM.fromList [("firstName", String urFirstName), ("lastName", String urLastName)]
               }
             {- heistLocal (bindStrings messages) $ render "users/registration-done" -}
             flashSuccess sess "Registration successful, please login now"
@@ -62,8 +62,8 @@ registrationHandler = do
             error $ show err
       where
         messages = do
-          "firstName"  ## firstName
-          "lastName"   ## lastName
+          "firstName"  ## urFirstName
+          "lastName"   ## urLastName
 
 {- createRandomPassword :: IO ByteString -}
 {- createRandomPassword = do -}

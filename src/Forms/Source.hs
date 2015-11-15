@@ -29,7 +29,7 @@ sourceForm
   -> Form Text m Source
 sourceForm uuid uid timestamp =
   Source  <$> pure uuid
-          <*> (pure . read $ T.unpack uid)
+          <*> pure uid
           <*> "title"       .: check "Title must not be empty" isNotEmpty (text Nothing)
           <*> "description" .: text Nothing
           <*> "url"         .: urlValidation (text Nothing)

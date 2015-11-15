@@ -4,7 +4,7 @@ MAINTAINER Alex Babkin <ababkin@gmail.com>
 ENV APP xds-site
 
 RUN apt-get update -y && \
-    apt-get install -y libssl-dev libghc-crypto-dev ca-certificates git gcc libpq-dev zlib1g-dev && \
+    apt-get install -y pkg-config libssl-dev libghc-crypto-dev ca-certificates git gcc libpq-dev zlib1g-dev libpcre3-dev && \
     apt-get clean -y && \
     apt-get purge -y
 

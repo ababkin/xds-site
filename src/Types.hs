@@ -12,44 +12,28 @@ import Data.Time.Clock (UTCTime)
 
 
 data Source = Source {
-    uuid        :: UUID
-  , uid         :: Int
-  , title       :: Text
-  , description :: Text
-  , url         :: Text
-  , createdAt   :: UTCTime
-  , updatedAt   :: UTCTime
+    sUuid        :: UUID
+  , sUserId      :: Text
+  , sTitle       :: Text
+  , sDescription :: Text
+  , sUrl         :: Text
+  , sCreatedAt   :: UTCTime
+  , sUpdatedAt   :: UTCTime
   } deriving Show
 
-instance FromRow Source where
-  fromRow = Source 
-                <$> field 
-                <*> field
-                <*> field
-                <*> field
-                <*> field
-                <*> field
-                <*> field
 
-instance ToRow Source where
-  toRow Source{uuid, uid, title, description,
-                  url, createdAt, updatedAt} = [
-                      toField uuid
-                    , toField uid
-                    , toField title
-                    , toField description
-                    , toField url
-                    , toField createdAt
-                    , toField updatedAt
-                    ]
-
+data User = User {
+    uId                    :: Int
+  , uUsername              :: Text
+  , uEmail                 :: Text
+}
 
 data UserRegistration = UserRegistration {
-    firstName             :: Text
-  , lastName              :: Text
-  , username              :: Text
-  , email                 :: Text
-  , password              :: Text
+    urFirstName             :: Text
+  , urLastName              :: Text
+  , urUsername              :: Text
+  , urEmail                 :: Text
+  , urPassword              :: Text
   } deriving Show
 
 

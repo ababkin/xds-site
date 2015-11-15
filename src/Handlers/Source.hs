@@ -31,8 +31,9 @@ import Application (App, AppHandler, auth, sess)
 import Types (Source(..))
 import Forms.Source (sourceForm)
 import Utils (ensureLoggedIn)
-import Store.Source (fetchAll, store)
+{- import Store.Source (fetchAll, store) -}
 import Mixpanel (track)
+import Store.DDB.Source (putSource, getSources)
 
 sourcesHandler :: AppHandler ()
 sourcesHandler = method GET listSourcesHandler <|> method POST sourceFormHandler
@@ -47,9 +48,9 @@ sourceFormHandler = ensureLoggedIn $ do
   timestamp       <- liftIO getCurrentTime
   (view, result)  <- runForm "source" $ sourceForm uuid uid timestamp 
   case result of
-    Just newSource@Source{title} -> do
-      store newSource
-      flashSuccess sess $ "Successfully added " <> title <> " source"
+    Just newSource@Source{sTitle} -> do
+      liftIO $ putSource newSource
+      flashSuccess sess $ "Successfully added " <> sTitle <> " source"
       liftIO $ track "source-create"
       redirect "/"
     Nothing -> 
@@ -58,7 +59,7 @@ sourceFormHandler = ensureLoggedIn $ do
 
 listSourcesHandler :: AppHandler ()
 listSourcesHandler = do
-  sources <- fetchAll
+  sources <- liftIO getSources
   withSplices (sourcesSplices sources) $ render "sources/index"
 
   liftIO $ track "source-index"
@@ -68,9 +69,9 @@ listSourcesHandler = do
       "sources" ## mapSplices sourceSplice sources
 
       where
-        sourceSplice Source{title, description, url} = 
+        sourceSplice Source{sTitle, sDescription, sUrl} = 
           runChildrenWithText $ do
-            "title"       ## title
-            "description" ## description
-            "url"         ## url
+            "title"       ## sTitle
+            "description" ## sDescription
+            "url"         ## sUrl
 
