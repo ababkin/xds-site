@@ -3,15 +3,19 @@
   padding: 10px; }
 
 .navbar-default.navbar {
-  background-color: #ddd; }
+  background-color: #333;
+  height: 35px; }
+
+.navbar-brand {
+  padding: 15px 12px; }
+
 .navbar-default a.navbar-brand span.join-symbol {
-  font-size: 1.6em;
-  color: #f89; }
+  font-size: 1.6em; }
+
 .navbar-default a.navbar-brand span.dataset {
-  margin-left: -4px;
   font-style: italic;
-  font-size: 1.4em;
-  color: #555; }
+  font-size: 1.4em; }
+
 .navbar-default .instructions {
   margin-top: 10px;
   margin-right: 20px; }
@@ -19,15 +23,12 @@
 .search-bar {
   margin: 0 20px 20px 20px; }
 
-.sources .source {
-  margin: 0 20px 20px; }
-  .sources .source .title a {
-    font-size: 1.5em; }
-
 .alert {
   margin-bottom: 0; }
 
 span.help-block ul li {
   color: #d33; }
+
+/*# sourceMappingURL=overrides.css.map */
 
 /*# sourceMappingURL=overrides.css.map */

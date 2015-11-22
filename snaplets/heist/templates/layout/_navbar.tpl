@@ -11,36 +11,44 @@
       <span class="dataset">dataset</span>
     </a>
   </div>
-
-  <ul class="nav navbar-top-links navbar-right">
-  <ifLoggedOut>
-    <a class="btn btn-default" rel="nofollow" href="/login">
-      Login
-    </a>
-  </ifLoggedOut>
-
-  <ifLoggedIn>
-    <li>
-      <loggedInUser/>
-    </li>
-    <li>    
-      <a href="/sources/new"><i class="fa fa-plus fa-fw"></i></a>
-    </li>
-    <li class="dropdown">
-      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-        <i class="fa fa-user fa-fw"></i>
-        <i class="fa fa-caret-down"></i>
-      </a>
-      <ul class="dropdown-menu dropdown-user">
+  <div class="collapse navbar-collapse">
+    <ul class="nav navbar-top-links navbar-right">
+      
+      <ifLoggedOut>
         <li>
-          <a rel="nofollow" data-method="delete" href="/logout">
-            <i class="fa fa-sign-out fa-fw"></i>
-            Logout
+          <a href="/login">
+            login
           </a>
         </li>
-      </ul>
-    </li>
-  </ifLoggedIn>
-  </ul>
+      </ifLoggedOut>
+
+      <ifLoggedIn>
+      <li>
+        <loggedInUser/>
+      </li>
+      <li>
+        <a href="/sources/new">
+          <i class="fa fa-plus fa-fw"></i>
+        </a>
+      </li>
+      <li class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+          <i class="fa fa-user fa-fw"></i>
+          <i class="fa fa-chevron-down"></i>
+        </a>
+        <ul class="dropdown-menu dropdown-user">
+          <li>
+            <a data-method="delete" href="/logout" rel="nofollow">
+              <i class="fa fa-sign-out fa-fw">
+                Logout
+              </i>
+            </a>
+          </li>
+        </ul>
+      </li>
+      </ifLoggedIn>
+      
+    </ul>
+  </div>
 </nav>
 

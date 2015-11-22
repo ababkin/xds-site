@@ -11,7 +11,7 @@
   </div>
 
   <div class="form-group">
-    <dfLabel ref="username" class="control-label required">Username</dfLabel>
+    <dfLabel ref="username" class="control-label required">Username*</dfLabel>
     <dfInputText ref="username" class="form-control"/>
     <span class="help-block">
       <dfErrorList ref="username"/>
@@ -19,7 +19,7 @@
   </div>
 
   <div class="form-group">
-    <dfLabel ref="email" class="control-label required">Email</dfLabel>
+    <dfLabel ref="email" class="control-label required">Email*</dfLabel>
     <dfInputText ref="email" class="form-control"/>
     <span class="help-block">
       <dfErrorList ref="email"/>
@@ -27,7 +27,7 @@
   </div>
 
   <div class="form-group">
-    <dfLabel ref="password.password" class="control-label required">Password</dfLabel>
+    <dfLabel ref="password.password" class="control-label required">Password*</dfLabel>
     <em> (8 characters minimum) </em>
     <dfInputPassword ref="password.password" class="form-control"/>
     <span class="help-block">
@@ -36,7 +36,7 @@
   </div>
 
   <div class="form-group">
-    <dfLabel ref="password.password_confirmation" class="control-label required">Password Confirmation</dfLabel>
+    <dfLabel ref="password.password_confirmation" class="control-label required">Password Confirmation*</dfLabel>
     <dfInputPassword ref="password.password_confirmation" class="form-control"/>
     <span class="help-block">
       <dfErrorList ref="password"/>

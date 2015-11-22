@@ -10,9 +10,8 @@ import Data.Maybe (fromMaybe)
 import Data.Monoid (Monoid, mempty, (<>))
 import Data.Text (Text)
 import qualified Data.Text as T
-import Data.Time.Clock (getCurrentTime, UTCTime)
+import Data.Time.Clock (UTCTime)
 import Data.UUID (UUID)
-import Data.UUID.V4 (nextRandom)
 import Heist ((##))
 import Heist.Interpreted (mapSplices, runChildrenWithText)
 
@@ -28,12 +27,11 @@ import Text.Digestive.Types(Result(..))
 import Snap.Extras.FlashNotice (flashSuccess, flashError)
 
 import Application (App, AppHandler, auth, sess)
-import Types (Source(..))
+import Types (Source(..), NewSource(..))
 import Forms.Source (sourceForm)
 import Utils (ensureLoggedIn)
-{- import Store.Source (fetchAll, store) -}
 import Mixpanel (track)
-import Store.DDB.Source (putSource, getSources)
+import Store.DDB.Source (createSource, putSource, getSources)
 
 sourcesHandler :: AppHandler ()
 sourcesHandler = method GET listSourcesHandler <|> method POST sourceFormHandler
@@ -42,15 +40,13 @@ newSourceHandler :: AppHandler ()
 newSourceHandler = method GET sourceFormHandler
 
 sourceFormHandler = ensureLoggedIn $ do 
-  uuid            <- liftIO nextRandom
-  maybeUser <- with auth currentUser
+  maybeUser       <- with auth currentUser
   let (UserId uid) = fromMaybe (UserId "0") (userId =<< maybeUser) 
-  timestamp       <- liftIO getCurrentTime
-  (view, result)  <- runForm "source" $ sourceForm uuid uid timestamp 
+  (view, result)  <- runForm "source" $ sourceForm uid
   case result of
-    Just newSource@Source{sTitle} -> do
-      liftIO $ putSource newSource
-      flashSuccess sess $ "Successfully added " <> sTitle <> " source"
+    Just newSource@NewSource{nsTitle} -> do
+      liftIO $ createSource newSource
+      flashSuccess sess $ "Successfully added " <> nsTitle <> " source"
       liftIO $ track "source-create"
       redirect "/"
     Nothing -> 
@@ -69,9 +65,9 @@ listSourcesHandler = do
       "sources" ## mapSplices sourceSplice sources
 
       where
-        sourceSplice Source{sTitle, sDescription, sUrl} = 
+        sourceSplice Source{sTitle, sDescription, sUrl, sDatasets} = 
           runChildrenWithText $ do
             "title"       ## sTitle
-            "description" ## sDescription
-            "url"         ## sUrl
+            "description" ## fromMaybe "" sDescription
+            "numDatasets" ## T.pack . show $ length sDatasets
 

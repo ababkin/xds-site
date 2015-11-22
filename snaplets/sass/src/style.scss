@@ -1,0 +1,64 @@
+body {
+	background-color: #eee;
+  font-family: "Exo 2", sans-serif!important;
+
+}
+.join-symbol{
+color: #5ef186;
+text-shadow:  1px 1px 0px #000;
+}
+.dataset{
+color: #eee;
+}
+/*-=-=-=-=-=-=-=- NAVBAR -=-=-=-=-=-=-=-=-=-*/
+.navbar-top-links{
+  li{height:40px;}
+  a{
+    color: #eee;
+  }
+  a:hover{
+    color: #5ef186;
+  }
+  -webkit-transition: opacity .15s ease-in-out;
+        -moz-transition: opacity .15s ease-in-out;
+        -ms-transition: opacity .15s ease-in-out;
+        -o-transition: opacity .15s ease-in-out;
+        transition: opacity .15s ease-in-out;
+
+
+}
+
+/*-=-=-=-=-=-= TABLE -=-=-=-=-=-=-=-*/
+
+.id-column{ text-align: center; width: 1%;}
+.upvote-column{
+  text-align: center; width: 1%;
+  a{
+    color: #5ef186;
+    text-shadow: rgb(60, 60, 60) 1px 1px 0px;
+  }
+}
+
+.sources {
+  margin-top: 20px;
+  .title-column{
+    font-size: 1.3em; a{
+      color: #333!important;
+    }
+  }
+  .sub-title-column{
+    font-size: 1.0em; color: #888;
+    a{
+      color: #888
+    }
+  }
+
+  .source {
+    margin-bottom: 10px;
+  }
+
+}
+
+.fa-chevron-up{
+  padding-top:2px;
+}

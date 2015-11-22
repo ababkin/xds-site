@@ -1,61 +1,34 @@
 #wrapper #page-wrapper {
   margin-left: 0;
-  padding: 10px;
-}
+  padding: 10px; }
 
-.navbar-default {
-  &.navbar {
-    background-color: #ddd;
+.navbar-default.navbar {
+  background-color: #333;
+  height: 35px;
+ }
+ .navbar-brand{
+ padding: 15px 12px;
+ }
+.navbar-default a.navbar-brand span.join-symbol {
+  font-size: 1.6em;
   }
-  a.navbar-brand {
-    span.join-symbol {
-      font-size: 1.6em;
-      color: #f89
-    }
-    span.dataset {
-      margin-left: -4px;
-      font-style: italic;
-      font-size: 1.4em;
-      color: #555;
-    }
-  }
-
-  .instructions {
-    margin-top: 10px;
-    margin-right: 20px;
-  }
-}
+.navbar-default a.navbar-brand span.dataset {
+  font-style: italic;
+  font-size: 1.4em;}
+.navbar-default .instructions {
+  margin-top: 10px;
+  margin-right: 20px; }
 
 .search-bar {
   margin: 0 20px 20px 20px;
 }
 
 
-.sources {
-  .source {
-    margin: 0 20px 20px;
-
-    .title a {
-      font-size: 1.5em;
-    }
-
-    .description {
-    }
-  }
-}
-
 .alert {
-  margin-bottom: 0
-}
-
-span.help-block {
-  ul {
-    li {
-      color: #d33
-    }
-  }
+  margin-bottom: 0;
 }
 
 
-
-
+span.help-block ul li {
+  color: #d33; }
+/*# sourceMappingURL=overrides.css.map */

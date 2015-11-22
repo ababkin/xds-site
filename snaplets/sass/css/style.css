@@ -1,0 +1,55 @@
+body {
+  background-color: #eee;
+  font-family: "Exo 2", sans-serif !important; }
+
+.join-symbol {
+  color: #5ef186;
+  text-shadow: 1px 1px 0px #000; }
+
+.dataset {
+  color: #eee; }
+
+/*-=-=-=-=-=-=-=- NAVBAR -=-=-=-=-=-=-=-=-=-*/
+.navbar-top-links {
+  -webkit-transition: opacity .15s ease-in-out;
+  -moz-transition: opacity .15s ease-in-out;
+  -ms-transition: opacity .15s ease-in-out;
+  -o-transition: opacity .15s ease-in-out;
+  transition: opacity .15s ease-in-out; }
+  .navbar-top-links li {
+    height: 40px; }
+  .navbar-top-links a {
+    color: #eee; }
+  .navbar-top-links a:hover {
+    color: #5ef186; }
+
+/*-=-=-=-=-=-= TABLE -=-=-=-=-=-=-=-*/
+.id-column {
+  text-align: center;
+  width: 1%; }
+
+.upvote-column {
+  text-align: center;
+  width: 1%; }
+  .upvote-column a {
+    color: #5ef186;
+    text-shadow: #3c3c3c 1px 1px 0px; }
+
+.sources {
+  margin-top: 20px; }
+  .sources .title-column {
+    font-size: 1.3em; }
+    .sources .title-column a {
+      color: #333 !important; }
+  .sources .sub-title-column {
+    font-size: 1.0em;
+    color: #888; }
+    .sources .sub-title-column a {
+      color: #888; }
+  .sources .source {
+    margin-bottom: 10px; }
+
+.fa-chevron-up {
+  padding-top: 2px; }
+
+/*# sourceMappingURL=style.css.map */

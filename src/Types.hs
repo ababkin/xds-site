@@ -11,29 +11,48 @@ import Data.UUID (UUID)
 import Data.Time.Clock (UTCTime)
 
 
+data NewSource = NewSource {
+    nsUserId      :: Text
+  , nsTitle       :: Text
+  , nsDescription :: Maybe Text
+  , nsUrl         :: Maybe Text
+  , nsDatasetUrl  :: Maybe Text
+  } deriving Show
+
 data Source = Source {
-    sUuid        :: UUID
-  , sUserId      :: Text
-  , sTitle       :: Text
-  , sDescription :: Text
-  , sUrl         :: Text
-  , sCreatedAt   :: UTCTime
-  , sUpdatedAt   :: UTCTime
+    sUuid         :: UUID
+  , sUserId       :: Text
+  , sTitle        :: Text
+  , sDescription  :: Maybe Text
+  , sUrl          :: Maybe Text
+  , sDatasets     :: [Dataset]
+  , sCreatedAt    :: UTCTime
+  , sUpdatedAt    :: UTCTime
+  } deriving Show
+
+data Dataset = Dataset {
+    dsUuid        :: UUID
+  , dsSourceId    :: UUID
+  , dsUserId      :: Text
+  , dsDescription :: Maybe Text
+  , dsUrl         :: Text
+  , dsCreatedAt   :: UTCTime
+  , dsUpdatedAt   :: UTCTime
   } deriving Show
 
 
 data User = User {
-    uId                    :: Int
-  , uUsername              :: Text
-  , uEmail                 :: Text
+    uId           :: Int
+  , uUsername     :: Text
+  , uEmail        :: Text
 }
 
 data UserRegistration = UserRegistration {
-    urFirstName             :: Text
-  , urLastName              :: Text
-  , urUsername              :: Text
-  , urEmail                 :: Text
-  , urPassword              :: Text
+    urFirstName   :: Text
+  , urLastName    :: Text
+  , urUsername    :: Text
+  , urEmail       :: Text
+  , urPassword    :: Text
   } deriving Show
 
 
