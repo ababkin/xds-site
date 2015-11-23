@@ -66,7 +66,7 @@ fetchSourceDatasets source@Source{sUuid} = do
 createSource 
   :: NewSource 
   -> IO ()
-createSource NewSource{nsUserId, nsTitle, nsDescription, nsUrl, nsDatasetUrl} = do
+createSource NewSource{nsUserId, nsTitle, nsDescription, nsUrls=(maybeWebsiteUrl, maybeDatasetUrl)} = do
   newSourceUuid <- nextRandom
   timestamp     <- getCurrentTime
 
@@ -75,12 +75,12 @@ createSource NewSource{nsUserId, nsTitle, nsDescription, nsUrl, nsDatasetUrl} = 
     , sUserId      = nsUserId
     , sTitle       = nsTitle
     , sDescription = nsDescription
-    , sUrl         = nsUrl
+    , sUrl         = maybeWebsiteUrl
     , sCreatedAt   = timestamp
     , sUpdatedAt   = timestamp
     }
 
-  case nsDatasetUrl of
+  case maybeDatasetUrl of
     Just datasetUrl -> do
       newDatasetUuid  <- nextRandom
 

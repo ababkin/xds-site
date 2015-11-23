@@ -84,7 +84,7 @@ main = withVersionOpt $ do
     cleanup
 
 withVersionOpt :: IO () -> IO ()
-withVersionOpt go = do  
+withVersionOpt go = do
   args <- getArgs
   case args of
     ["--version"] -> putStrLn $ showVersion version

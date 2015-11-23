@@ -15,8 +15,7 @@ data NewSource = NewSource {
     nsUserId      :: Text
   , nsTitle       :: Text
   , nsDescription :: Maybe Text
-  , nsUrl         :: Maybe Text
-  , nsDatasetUrl  :: Maybe Text
+  , nsUrls        :: (Maybe Text, Maybe Text)
   } deriving Show
 
 data Source = Source {

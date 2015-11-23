@@ -1,7 +1,4 @@
 <dfForm action="${action}" role="form" class="source" method="${method}">
-  <span class="help-block">
-    <dfErrorList ref=""/>
-  </span>
 
   <div class="form-group">
     <dfLabel ref="title" class="control-label required">Title*</dfLabel>
@@ -19,32 +16,35 @@
     </span>
   </div>
 
+
+
   <div class="form-group" >
-    <dfLabel ref="url.webpage_url" class="control-label required">Webpage URL</dfLabel>
-    <dfInputText class="form-control" ref="url.webpage_url" placeholder="Enter source webpage URL"/>
+    <dfLabel ref="url.webpage" class="control-label required">Webpage URL</dfLabel>
+    <dfInputText class="form-control" ref="url.webpage" placeholder="Enter source webpage URL"/>
     <span class="help-block">
-      <dfErrorList ref="url"/>
-    </span>
-    <span class="help-block">
-      <dfErrorList ref="url.webpage_url"/>
+      <dfErrorList ref="url.webpage"/>
     </span>
   </div>
 
   <div class="form-group" >
-    <dfLabel ref="url.remote_dataset_url" class="control-label required">And/Or Dataset URL</dfLabel>
-    <dfInputText class="form-control" ref="url.remote_dataset_url" placeholder="Enter dataset URL"/>
+    <dfLabel ref="url.remote" class="control-label required">And/Or Dataset URL</dfLabel>
+    <dfInputText class="form-control" ref="url.remote" placeholder="Enter dataset URL"/>
     <span class="help-block">
-      <dfErrorList ref="url.remote_dataset_url"/>
+      <dfErrorList ref="url.remote"/>
     </span>
   </div>
 
   <div class="form-group" >
-    <dfLabel ref="url.local_dataset_path" class="control-label required">Or choose a local dataset file</dfLabel>
-    <dfInputFile class="form-control" ref="url.local_dataset_path"/>
+    <dfLabel ref="url.local" class="control-label required">Or choose a local dataset file</dfLabel>
+    <dfInputFile class="form-control" ref="url.local"/>
     <span class="help-block">
-      <dfErrorList ref="url.local_dataset_path"/>
+      <dfErrorList ref="url.local"/>
     </span>
   </div>
+
+  <span class="help-block">
+    <dfErrorList ref="url"/>
+  </span>
 
   <div class="form-group">
     <dfInputSubmit value="${submitText}" class="btn btn-primary" data-disable-with="Submitting..."/>
