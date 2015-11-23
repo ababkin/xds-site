@@ -17,14 +17,9 @@ import Data.Time.Clock (getCurrentTime, UTCTime)
 import Text.Digestive (Form)
 import Text.Digestive.Form ((.:), text, optionalText, check, checkM, validateM, file)
 import qualified Text.Digestive.Types as D (Result(Success, Error))
-import Network.HTTP.Client (HttpException, parseUrl)
-import Network.HTTP (simpleHTTP, getRequest, getResponseCode, rspCode, Response)
-import Network.HTTP.Headers (findHeader, HeaderName(HdrLocation))
-import qualified Network.Stream as NS
+import Network.HTTP.Conduit (httpLbs, parseUrl, newManager, tlsManagerSettings, HttpException(StatusCodeException))
+import Network.HTTP.Types.Status (statusCode)
 import System.Posix (fileSize, getFileStatus)
-import Network.TCP (HStream)
-import qualified Data.ByteString.Lazy as L
-
 
 import Application (AppHandler)
 import Forms.Validators (isFormattedLikeURL, isNotEmpty)
@@ -84,26 +79,25 @@ sourceForm uid =
       -> IO (D.Result Text (Maybe Text))
     isPingable Nothing = return $ D.Success Nothing 
     isPingable (Just url) = do
-      result <- catchAny ( simpleHTTP (getRequest $ T.unpack url)  ) giveUp 
-      case result of
-        Left _err -> return pingError
-        Right resp ->
-          case rspCode resp of
-            (2,_,_) -> return . D.Success $ Just url
-            (3,_,_) ->
-              case findHeader HdrLocation resp of
-                Nothing -> return pingError
-                Just location -> return . D.Error $ "URL redirects to: " <> T.pack location <> " - consider using this URL instead"
-        _       -> return pingError 
+      request <- parseUrl $ T.unpack url 
+      manager <- newManager tlsManagerSettings
+      r <- fmap Right (httpLbs request manager) 
+        `catch` (\(StatusCodeException s _ _) -> do
+          let code = statusCode s
+          return . Left $ case code of
+                    403 -> "Not Authorized" 
+                    404 -> "Not Found" 
+                    _   -> "Got error code: " ++ show code 
+        )
+        `catchAny` const (return $ Left "Unknown error")
+
+      return $ case r of
+        Right _   -> D.Success $ Just url
+        Left err  -> D.Error . T.pack $ "Could not successfully ping the URL: " ++ err
+
+
       where
         catchAny :: IO a -> (SomeException -> IO a) -> IO a
         catchAny = Control.Exception.catch
-
-        giveUp :: SomeException -> IO (Either NS.ConnError (Response String))
-        giveUp = const . return . Left $ NS.ErrorMisc pingErrorMessage
-
-        pingError = D.Error $ T.pack pingErrorMessage
-        
-        pingErrorMessage = "Could not successfully ping the URL"
 
 
