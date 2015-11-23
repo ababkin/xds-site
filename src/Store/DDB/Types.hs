@@ -69,18 +69,20 @@ instance FromDynItem Dataset where
     <$> getAttr "uuid" i
     <*> getAttr "sourceId" i
     <*> getAttr "userId" i
+    <*> getAttr "title" i
     <*> getAttr' "description" i
     <*> getAttr "url" i
     <*> getAttr "createdAt" i
     <*> getAttr "updatedAt" i
 
 instance ToDynItem Dataset where
-  toItem Dataset{dsUuid, dsSourceId, dsUserId, dsDescription, 
+  toItem Dataset{dsUuid, dsSourceId, dsUserId, dsTitle, dsDescription, 
                   dsUrl, dsCreatedAt, dsUpdatedAt} = 
     item $ attrs [ 
         attr "uuid"         dsUuid
       , attr "sourceId"     dsSourceId 
       , attr "userId"       dsUserId 
+      , attr "title"        dsTitle
       , attr "url"          dsUrl
       , attr "createdAt"    dsCreatedAt
       , attr "updatedAt"    dsUpdatedAt

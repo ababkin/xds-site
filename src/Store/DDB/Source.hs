@@ -9,12 +9,16 @@ import qualified Data.Vector as V
 import Data.Either.Unwrap (fromRight)
 import Control.Monad (forM_)
 import qualified Aws
-import Aws.DynamoDb.Commands 
-import Aws.DynamoDb.Core (fromItem, toItem, 
+import Aws.DynamoDb.Commands (getItem, qrItems, scan, query, Slice(Slice), qrItems, qIndex, putItem,
+  piReturn, piRetCons, piRetMet, srItems)
+import Aws.DynamoDb.Core (fromItem, toItem, hk,
   UpdateReturn(URAllOld), ReturnConsumption(RCTotal), 
   ReturnItemCollectionMetrics(RICMSize), toValue, Attribute(Attribute))
 import Data.UUID.V4 (nextRandom)
 import Data.Time.Clock (getCurrentTime)
+import Data.Text (Text)
+import Aws.DynamoDb (GetItemResponse(girItem))
+import Data.Maybe (fromJust)
 
 import Types (Source(..), NewSource(..), Dataset(..))
 import Store.DDB.Types ()
@@ -24,16 +28,40 @@ datasetsTable = "datasets"
 
 getSources :: IO [Source]
 getSources = do
-    eitherResults <- (map fromItem . V.toList . srItems) <$> fromRight <$> runWithCreds (scan sourcesTable)
-    {- print eitherResults -}
-    mapM fetchSourceDatasets $ rights eitherResults
 
-  where
-    fetchSourceDatasets source@Source{sUuid} = do
-      let q = query datasetsTable (Slice (Attribute "sourceId" (toValue sUuid)) Nothing)
-      datasets <- rights . map fromItem . V.toList . qrItems . fromRight <$>
-        runWithCreds q{qIndex = Just "SourcesIndex"}
-      return $ source{sDatasets = datasets}
+    {- eitherResults <- (map fromItem . V.toList . srItems) <$> fromRight <$> runWithCreds (scan sourcesTable) -}
+    {- mapM fetchSourceDatasets $ rights eitherResults -}
+
+  resp <- runWithCreds (scan sourcesTable)
+  either
+    error
+    (mapM fetchSourceDatasets . rights)
+    (map fromItem . V.toList . srItems <$> resp)
+
+  {- resp <- runWithCreds (scan sourcesTable) -}
+  {- mapM fetchSourceDatasets $ rights (map fromItem . V.toList . srItems <$> resp)  -}
+
+getSource :: Text -> IO (Either String Source)
+getSource sourceId = do
+  let req = getItem sourcesTable (hk "uuid" $ toValue sourceId)
+
+  {- let q = query sourcesTable (Slice (Attribute "uuid" (toValue sourceId)) Nothing) -}
+
+  resp <- runWithCreds req
+  eitherDo (fromItem =<< maybeToEither "Could not get the item" . girItem =<< resp) fetchSourceDatasets
+
+
+maybeToEither = (`maybe` Right) . Left 
+
+eitherDo :: (Functor m, Monad m) => Either a b -> (b -> m c) -> m (Either a c)
+eitherDo (Left x) _ = return $ Left x
+eitherDo (Right y) f = Right <$> f y
+
+fetchSourceDatasets source@Source{sUuid} = do
+  let q = query datasetsTable (Slice (Attribute "sourceId" (toValue sUuid)) Nothing)
+  datasets <- rights . map fromItem . V.toList . qrItems . fromRight <$>
+    runWithCreds q{qIndex = Just "SourcesIndex"}
+  return $ source{sDatasets = datasets}
 
 createSource 
   :: NewSource 
@@ -60,6 +88,7 @@ createSource NewSource{nsUserId, nsTitle, nsDescription, nsUrl, nsDatasetUrl} = 
           dsUuid        = newDatasetUuid
         , dsSourceId    = newSourceUuid
         , dsUserId      = nsUserId
+        , dsTitle       = nsTitle
         , dsDescription = Nothing
         , dsUrl         = datasetUrl
         , dsCreatedAt   = timestamp

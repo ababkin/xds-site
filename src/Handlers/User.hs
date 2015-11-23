@@ -60,10 +60,10 @@ registrationHandler = do
 
           Left err ->
             error $ show err
-      where
-        messages = do
-          "firstName"  ## urFirstName
-          "lastName"   ## urLastName
+      {- where -}
+        {- messages = do -}
+          {- "firstName"  ## urFirstName -}
+          {- "lastName"   ## urLastName -}
 
 {- createRandomPassword :: IO ByteString -}
 {- createRandomPassword = do -}

@@ -9,7 +9,7 @@
           </a>
         </div>
         <div class="col-xs-11 col-sm-11 col-11 col-lg-11 title-column">
-          <a href="${url}">
+          <a href="/sources/${sourceId}">
             <title/>
           </a>
         </div>

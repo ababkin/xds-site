@@ -22,7 +22,8 @@ import Snap.Snaplet.Auth.Backends.PostgresqlSimple (initPostgresAuth)
 import Snap.Snaplet.PostgresqlSimple (pgsInit)
 
 import Handlers.Auth (loginHandler, logoutHandler)
-import Handlers.Source (sourcesHandler, newSourceHandler, listSourcesHandler)
+import Handlers.Source (sourcesHandler, sourceHandler, 
+  newSourceHandler, listSourcesHandler)
 import Handlers.User (registrationHandler)
 import Snap.Extras.FlashNotice (initFlashNotice)
 
@@ -33,17 +34,18 @@ import Flash (addFlashSplices)
 
 
 routes :: [(ByteString, Handler App App ())]
-routes =  [ ("/sources",      sourcesHandler)
-          , ("/sources/new",  newSourceHandler)
-          
-          {- , ("/users",        usersHandler) -}
-          , ("/signup",       registrationHandler)
+routes =  [ ("/sources",            sourcesHandler)
+          , ("/sources/:sourceId",  sourceHandler)
+          , ("/sources/new",        newSourceHandler)
 
-          , ("/login",        loginHandler)
-          , ("/logout",       logoutHandler)
+          {- , ("/users",             usersHandler) -}
+          , ("/signup",             registrationHandler)
 
-          , ("/sass",         with sass sassServe)
-          , ("/static",       serveDirectory "static")
+          , ("/login",              loginHandler)
+          , ("/logout",             logoutHandler)
+
+          , ("/sass",               with sass sassServe)
+          , ("/static",             serveDirectory "static")
           ]
 
 

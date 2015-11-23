@@ -34,6 +34,7 @@ data Dataset = Dataset {
     dsUuid        :: UUID
   , dsSourceId    :: UUID
   , dsUserId      :: Text
+  , dsTitle       :: Text
   , dsDescription :: Maybe Text
   , dsUrl         :: Text
   , dsCreatedAt   :: UTCTime
