@@ -21,19 +21,21 @@ import Network.HTTP.Conduit (httpLbs, parseUrl, newManager, tlsManagerSettings, 
 import Network.HTTP.Types.Status (statusCode)
 import System.Posix (fileSize, getFileStatus)
 
+import Store.S3.Source (upload)
 import Application (AppHandler)
 import Forms.Validators (isFormattedLikeURL, isNotEmpty)
-import Types (Source(..), NewSource(..))
+import Types (Source(..), NewSource(..), NewSourceUrl(..))
 
 
-sourceForm 
-  :: Text
+sourceForm
+  :: UUID
+  -> Text
   -> Form Text AppHandler NewSource
-sourceForm uid =
+sourceForm uuid uid =
   NewSource <$> pure uid
             <*> "title"       .: check "Title must not be empty" isNotEmpty (text Nothing)
             <*> "description" .: optionalText Nothing
-            <*> "url" .: datasetUrlValidation
+            <*> "url"         .: datasetValidation uuid
 
   where
     isMaybeFormattedLikeURL :: Maybe Text -> Bool
@@ -41,63 +43,72 @@ sourceForm uid =
     isMaybeFormattedLikeURL (Just t) = isJust . parseUrl . T.unpack $ t
 
 
-    datasetUrlValidation = validateM extractUrls $
+    datasetValidation uuid = validateM (extractUrls uuid) $
                      (,,) <$> "webpage" .: webpageUrlValidation (optionalText Nothing)
-                          <*> "remote"  .: check "URL must have a correct format. e.g.: http://example.com/some/data.csv" isMaybeFormattedLikeURL (optionalText Nothing)
-                          <*> "local"   .: file 
-
-
-      where extractUrls :: (Maybe Text, Maybe Text, Maybe FilePath) -> AppHandler (D.Result Text (Maybe Text, Maybe Text))
-            
-            extractUrls (Nothing, Nothing, Nothing) = 
-              return $ D.Error "Please enter Webpage URL, Dataset URL or upload a Dataset file"
-
-            extractUrls (maybeWebsiteUrl, maybeRemoteDatasetUrl, Nothing) = 
-              return $ D.Success (maybeWebsiteUrl, maybeRemoteDatasetUrl)
-            
-            extractUrls (maybeWebsiteUrl, maybeRemoteDatasetUrl, Just path) = do
-              size <- fileSize <$> liftIO (getFileStatus path)
-              if size == 0
-                then extractUrls (maybeWebsiteUrl, maybeRemoteDatasetUrl, Nothing)
-                else
-                  if isJust maybeRemoteDatasetUrl 
-                    then return $ D.Error "Please either enter a remote URL OR attach a file, not both"
-                    else do
-                      {- store <- use filestore -}
-                      {- url <- storeFile store path Nothing -}
-                      liftIO . putStrLn $ "filepath received: " ++ show path
-                      return $ D.Success (maybeWebsiteUrl, Just "http://s3.com/somepath")
-
-
-
-    webpageUrlValidation = 
-      validateM (liftIO . isPingable) . 
-      check "URL must have a correct format. e.g.: http://example.com/some/data" isMaybeFormattedLikeURL
-
-    isPingable 
-      :: Maybe Text 
-      -> IO (D.Result Text (Maybe Text))
-    isPingable Nothing = return $ D.Success Nothing 
-    isPingable (Just url) = do
-      request <- parseUrl $ T.unpack url 
-      manager <- newManager tlsManagerSettings
-      r <- fmap Right (httpLbs request manager) 
-        `catch` (\(StatusCodeException s _ _) -> do
-          let code = statusCode s
-          return . Left $ case code of
-                    403 -> "Not Authorized" 
-                    404 -> "Not Found" 
-                    _   -> "Got error code: " ++ show code 
-        )
-        `catchAny` const (return $ Left "Unknown error")
-
-      return $ case r of
-        Right _   -> D.Success $ Just url
-        Left err  -> D.Error . T.pack $ "Could not successfully ping the URL: " ++ err
+                          <*> "remote"  .: remoteDatasetUrlValidation (optionalText Nothing)
+                          <*> "local"   .: file
 
 
       where
-        catchAny :: IO a -> (SomeException -> IO a) -> IO a
-        catchAny = Control.Exception.catch
+
+        extractUrls
+          :: UUID
+          -> (Maybe Text, Maybe Text, Maybe FilePath)
+          -> AppHandler (D.Result Text NewSourceUrl)
+
+        extractUrls _ (Nothing, Nothing, Nothing) =
+          return $ D.Error "Please enter Webpage URL, Dataset URL or upload a Dataset file"
+
+        extractUrls uuid (maybeWebsiteUrl, maybeRemoteDatasetUrl, Nothing) =
+          return . D.Success $ NewSourceUrl uuid maybeWebsiteUrl maybeRemoteDatasetUrl
+
+        extractUrls uuid (maybeWebsiteUrl, maybeRemoteDatasetUrl, Just path) = do
+          size <- fileSize <$> liftIO (getFileStatus path)
+          if size == 0
+            then extractUrls uuid (maybeWebsiteUrl, maybeRemoteDatasetUrl, Nothing)
+            else
+              if isJust maybeRemoteDatasetUrl
+                then return $ D.Error "Please either enter a remote URL OR attach a file, not both"
+                else liftIO $ do
+                  putStrLn $ "filepath received: " ++ path
+                  url <- upload (T.pack path) uuid
+                  return . D.Success $ NewSourceUrl uuid maybeWebsiteUrl $ Just url
+
+
+
+        remoteDatasetUrlValidation =
+          validateM (liftIO . pingValidation) .
+          check "URL must have a correct format. e.g.: http://example.com/some/data.csv" isMaybeFormattedLikeURL
+
+
+        webpageUrlValidation =
+          validateM (liftIO . pingValidation) .
+          check "URL must have a correct format. e.g.: http://example.com/some/data" isMaybeFormattedLikeURL
+
+        pingValidation
+          :: Maybe Text
+          -> IO (D.Result Text (Maybe Text))
+        pingValidation Nothing = return $ D.Success Nothing
+        pingValidation (Just url) = do
+          request <- parseUrl $ T.unpack url
+          manager <- newManager tlsManagerSettings
+          r <- fmap Right (httpLbs request manager)
+            `catch` (\(StatusCodeException s _ _) -> do
+              let code = statusCode s
+              return . Left $ "Got error code: " ++ show code ++ case code of
+                        403 -> ": Not Authorized"
+                        404 -> ": Not Found"
+                        _   -> ""
+            )
+            `catchAny` const (return $ Left "Unknown error")
+
+          return $ case r of
+            Right _   -> D.Success $ Just url
+            Left err  -> D.Error . T.pack $ "Could not successfully ping the URL: " ++ err
+
+
+          where
+            catchAny :: IO a -> (SomeException -> IO a) -> IO a
+            catchAny = Control.Exception.catch
 
 

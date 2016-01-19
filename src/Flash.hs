@@ -11,7 +11,7 @@ import Snap.Snaplet.Session (SessionManager)
 import Snap.Extras.FlashNotice (flashSplice, flashCSplice)
 
 
-addFlashSplices
+addFlashSplices 
   :: HasHeist b
   => Snaplet (Heist b)
   -> SnapletLens b SessionManager  

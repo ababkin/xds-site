@@ -14,6 +14,7 @@ import Data.Time.Clock (UTCTime)
 import Data.UUID (UUID, toText)
 import Heist ((##))
 import Heist.Interpreted (mapSplices, runChildrenWithText, textSplice)
+import Data.UUID.V4 (nextRandom)
 
 import Snap.Core (method, redirect, Method(GET, POST), getParam, MonadSnap)
 import Snap.Snaplet (Handler, with)
@@ -35,7 +36,7 @@ import Forms.Source (sourceForm)
 import Utils (ensureLoggedIn)
 import Mixpanel (track)
 import Store.DDB.Source (createSource, putSource, getSources, getSource)
-
+import Logger.Types (ResourceType(Source, Dataset), Action(Create, Update))
 
 sourcesHandler :: AppHandler ()
 sourcesHandler = method GET listSourcesHandler <|> method POST sourceFormHandler
@@ -58,7 +59,7 @@ sourceHandler = method GET $ do
       "source_description"  ## textSplice (fromMaybe "no description" sDescription)
       "source_website_url"  ## textSplice (fromMaybe "" sUrl)
       "source_datasets"     ## mapSplices datasetSplice sDatasets
-      
+
       where
         datasetSplice Dataset{dsUuid, dsTitle, dsDescription, dsUrl} =
           runChildrenWithText $ do
@@ -76,18 +77,19 @@ runForm' = runFormWith (defaultSnapFormConfig { uploadPolicy = setMaximumFormInp
                                               , partPolicy = const $ allowWithMaximumSize tenmegs})
   where tenmegs = 10 * 1024 * 1024
 
-sourceFormHandler = ensureLoggedIn $ do 
-  maybeUser       <- with auth currentUser
+sourceFormHandler = ensureLoggedIn $ do
+  maybeUser <- with auth currentUser
+  uuid      <- liftIO nextRandom
 
-  let (UserId uid) = fromMaybe (UserId "0") (userId =<< maybeUser) 
-  (view, result)  <- runForm' "source" $ sourceForm uid
+  let (UserId uid) = fromMaybe (UserId "0") (userId =<< maybeUser)
+  (view, result)  <- runForm' "source" $ sourceForm uuid uid
   case result of
     Just newSource@NewSource{nsTitle} -> do
       liftIO $ createSource newSource
       flashSuccess sess $ "Successfully added " <> nsTitle <> " source"
-      liftIO $ track "source-create"
+      liftIO $ logEvent Create Source
       redirect "/"
-    Nothing -> 
+    Nothing ->
       heistLocal (bindDigestiveSplices view) $ render "sources/new"
 
 
@@ -103,7 +105,7 @@ listSourcesHandler = do
       "sources" ## mapSplices sourceSplice sources
 
       where
-        sourceSplice Source{sUuid, sTitle, sDescription, sUrl, sDatasets} = 
+        sourceSplice Source{sUuid, sTitle, sDescription, sUrl, sDatasets} =
           runChildrenWithText $ do
             "title"       ## sTitle
             "description" ## fromMaybe "" sDescription

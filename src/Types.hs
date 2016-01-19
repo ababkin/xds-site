@@ -10,12 +10,20 @@ import Database.PostgreSQL.Simple.ToField (toField)
 import Data.UUID (UUID)
 import Data.Time.Clock (UTCTime)
 
+import Xds.Aws.Types (URL)
+
 
 data NewSource = NewSource {
     nsUserId      :: Text
   , nsTitle       :: Text
   , nsDescription :: Maybe Text
-  , nsUrls        :: (Maybe Text, Maybe Text)
+  , nsUrls        :: NewSourceUrl
+  } deriving Show
+
+data NewSourceUrl = NewSourceUrl {
+    nsuUuid       :: UUID
+  , nsuSourceUrl  :: Maybe URL
+  , nsuDatasetUrl :: Maybe URL
   } deriving Show
 
 data Source = Source {
@@ -56,8 +64,8 @@ data UserRegistration = UserRegistration {
   } deriving Show
 
 
-data Login = Login
-  { loginUsername :: Text  -- ^ username for login
+data Login = Login {
+    loginUsername :: Text  -- ^ username for login
   , loginPassword :: Text  -- ^ password for login
   , loginRemember :: Bool  -- ^ remember token for login
   } deriving (Show)

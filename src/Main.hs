@@ -16,7 +16,7 @@ most cases you'll never need to modify this code.
 module Main where
 
 ------------------------------------------------------------------------------
-import           Control.Exception (SomeException, try)
+import           Control.Exception (SomeException, try) 
 import qualified Data.Text as T
 import           Snap.Http.Server
 import           Snap.Snaplet

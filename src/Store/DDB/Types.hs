@@ -26,8 +26,8 @@ import Types (Source(..), Dataset(..))
 
 instance DynVal (Maybe Text) where
   type DynRep (Maybe Text) = DynString
-  fromRep (DynString t) = 
-    if T.null t 
+  fromRep (DynString t) =
+    if T.null t
       then Nothing
       else Just (Just t)
   toRep = DynString . fromMaybe ""
@@ -49,15 +49,15 @@ instance FromDynItem Source where
     <*> getAttr "updatedAt" i
 
 instance ToDynItem Source where
-  toItem Source{sUuid, sUserId, sTitle, sDescription, 
-                sUrl, sCreatedAt, sUpdatedAt} = 
-    item $attrs [ 
+  toItem Source{sUuid, sUserId, sTitle, sDescription,
+                sUrl, sCreatedAt, sUpdatedAt} =
+    item $ attrs [
           attr "uuid"         sUuid
-        , attr "userId"       sUserId 
-        , attr "title"        sTitle 
+        , attr "userId"       sUserId
+        , attr "title"        sTitle
         , attr "createdAt"    sCreatedAt
         , attr "updatedAt"    sUpdatedAt
-        ] 
+        ]
         [
           optionalAttr "description" sDescription
         , optionalAttr "url" sUrl
@@ -76,19 +76,19 @@ instance FromDynItem Dataset where
     <*> getAttr "updatedAt" i
 
 instance ToDynItem Dataset where
-  toItem Dataset{dsUuid, dsSourceId, dsUserId, dsTitle, dsDescription, 
-                  dsUrl, dsCreatedAt, dsUpdatedAt} = 
-    item $ attrs [ 
+  toItem Dataset{dsUuid, dsSourceId, dsUserId, dsTitle, dsDescription,
+                  dsUrl, dsCreatedAt, dsUpdatedAt} =
+    item $ attrs [
         attr "uuid"         dsUuid
-      , attr "sourceId"     dsSourceId 
-      , attr "userId"       dsUserId 
+      , attr "sourceId"     dsSourceId
+      , attr "userId"       dsUserId
       , attr "title"        dsTitle
       , attr "url"          dsUrl
       , attr "createdAt"    dsCreatedAt
       , attr "updatedAt"    dsUpdatedAt
       ] [optionalAttr "description" dsDescription]
 
-attrs :: [a] -> [Maybe a] -> [a] 
+attrs :: [a] -> [Maybe a] -> [a]
 attrs base opts = base ++ catMaybes opts
 
 {- optionalAttr :: Text -> Maybe a -> Maybe _  -}
